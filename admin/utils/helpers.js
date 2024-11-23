@@ -318,8 +318,9 @@ export const generateStick = (item, barCodeImageLink) => {
   // doc.setFontSize(28).text(`Some Note`, 54, 136);
   doc.setFontSize(36).text(`${item?.sfc?.consignment_id}`, 70, 74);
   // doc.setFontSize(36).text(`${item?.id}`, 120, 88);
-  
+
   doc.setFont(undefined, "bold");
+  doc.setFontSize(26).text(`(WGT: ${item?.weight}kg)`, 6, 74);
   doc.setFontSize(36).text("Rajshahir Aam Wala", 38, 225);
   doc
     .setFontSize(40)
@@ -332,7 +333,8 @@ export const generateStick = (item, barCodeImageLink) => {
     .setFontSize(40)
     .text(`COD: ${item?.customer_details.salePrice}/-`, 65, 195);
   doc.setFontSize(36).text("Receiver:", 15, 88);
-  doc.setFontSize(28).text(`Invoice: ${item?.id}`, 100, 88);
+  // doc.setFontSize(24).text(`(WGT:${item?.weight}kg)`, 12, 74);
+  doc.setFontSize(36).text(`${item?.id}`, 120, 88);
   doc.setFontSize(36).text("Sender:", 15, 210);
   doc.setFontSize(55).text("Rajshahir Aam Wala", 6, 25);
   doc.setFontSize(36).text("Thanks for being with us.", 24, 270);

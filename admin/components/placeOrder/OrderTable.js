@@ -247,7 +247,8 @@ const OrderTable = () => {
                   <th className="px-4 py-3 ">Created By</th>
                   <th className="px-4 py-3 ">invoice</th>
                   {(user.staff_role === "HR" ||
-                    user.staff_role === "Admin") && (
+                    user.staff_role === "Admin" ||
+                    user?.staff_role === "Sales Manager") && (
                     <th className="px-4 py-3 ">ACTIONS</th>
                   )}
                 </tr>
@@ -382,11 +383,21 @@ const OrderTable = () => {
                                 </option>
 
                                 <option value="Pending">Pending</option>
-                                <option value="Processing">Processing</option>
-                                <option value="Shipped">Shipped</option>
-                                <option value="Delivered">Delivered</option>
+                                {user.staff_role !== "Sales Manager" && (
+                                  <option value="Processing">Processing</option>
+                                )}
+                                {user.staff_role !== "Sales Manager" && (
+                                  <option value="Shipped">Shipped</option>
+                                )}
+                                {user.staff_role !== "Sales Manager" && (
+                                  <option value="Delivered">Delivered</option>
+                                )}
+
                                 <option value="Hold">Hold</option>
-                                <option value="Returned">Returned</option>
+                                {user.staff_role !== "Sales Manager" && (
+                                  <option value="Returned">Returned</option>
+                                )}
+
                                 <option value="Cancelled">Cancelled</option>
                               </select>
                             </td>
@@ -397,7 +408,7 @@ const OrderTable = () => {
                             </td>
                             <td className="px-4 py-3">
                               <span className="text-sm font-semibold">
-                                {item.placeBy}
+                                {item.placeBy?.user || item?.placeBy}
                               </span>
                             </td>
                             <td className="px-4 py-3">
@@ -411,6 +422,19 @@ const OrderTable = () => {
                                 </Tooltip>
                               </Link>
                             </td>
+                            {user.staff_role === "Sales Manager" && (
+                              <td className="px-4 py-3">
+                                <Link
+                                  href={`/admin/place-order/edit-order/id=${item.id}`}
+                                >
+                                  <Tooltip label="Edit" color="blue" withArrow>
+                                    <span className="cursor-pointer hover:text-blue-400">
+                                      <FiEdit size={16} />
+                                    </span>
+                                  </Tooltip>
+                                </Link>
+                              </td>
+                            )}
 
                             {(user.staff_role === "HR" ||
                               user.staff_role === "Admin") && (
@@ -432,7 +456,7 @@ const OrderTable = () => {
                                   )}
 
                                   <Link
-                                    href={`/admin/orders/edit-order/id=${item.id}`}
+                                    href={`/admin/place-order/edit-order/id=${item.id}`}
                                   >
                                     <Tooltip
                                       label="Edit"
