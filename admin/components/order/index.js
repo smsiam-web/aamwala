@@ -22,9 +22,8 @@ const Order = () => {
   }, []);
 
   useEffect(() => {
-    limits ? setLimit(400) : setLimit(30)
-  }, [limits])
-  
+    limits ? setLimit(600) : setLimit(30);
+  }, [limits]);
 
   // Get order from firebase database
   useEffect(() => {

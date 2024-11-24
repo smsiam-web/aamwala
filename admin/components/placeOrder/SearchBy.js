@@ -229,7 +229,9 @@ const SearchBy = ({ onClick }) => {
               </div>
               <div className="w-4/12 text-end">
                 <h3>{ToDateAndTime(filterOrder.timestamp)}</h3>
-                <h3>Entry by: {filterOrder.placeBy}</h3>
+                <h3>
+                  Entry by: {filterOrder?.placeBy?.user || filterOrder.placeBy}
+                </h3>
                 <h3>Weight: {filterOrder.weight}kg</h3>
               </div>
             </div>
