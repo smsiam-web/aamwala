@@ -28,20 +28,23 @@ const ExportCSV = () => {
           const order = [];
           snap.forEach((doc) => {
             // doc.data() is the data of the document
-            doc.data().status !== "Cancelled" &&
-              order.push({
-                Invoice: doc.id,
-                Name: doc?.data()?.customer_details.customer_name,
-                Address: doc?.data()?.customer_details.customer_address,
-                Phone: doc?.data()?.customer_details.phone_number,
-                Amount: doc?.data()?.customer_details.salePrice,
-                Weight: doc?.data()?.weight,
-                Note: `${doc?.data()?.customer_details.note} ${
-                  doc?.data()?.customer_details.delivery_type
-                    ? "(Home Delivery)"
-                    : "(Point Delivery)"
-                }`,
-              });
+            order.push({
+              Invoice: doc.id,
+              Name: doc?.data()?.customer_details.customer_name,
+              Address: doc?.data()?.customer_details.customer_address,
+              Phone: doc?.data()?.customer_details.phone_number,
+              Amount: doc?.data()?.customer_details.salePrice,
+              Weight: doc?.data()?.weight,
+              Created: doc?.data()?.date,
+              Status: doc?.data()?.status,
+              Placed_By: doc?.data()?.placeBy?.user || doc?.data()?.placeBy,
+              Note: doc?.data()?.customer_details.note,
+            });
+            // Note: `${doc?.data()?.customer_details.note} ${
+            //   doc?.data()?.customer_details.delivery_type
+            //     ? "(Home Delivery)"
+            //     : "(Point Delivery)"
+            // }`,
           });
           if (!!order.length) {
             const ws = XLSX.utils.json_to_sheet(order.reverse());
@@ -65,7 +68,7 @@ const ExportCSV = () => {
               message: `(•_•)There was no data for download... !!`,
               color: "red",
             });
-            setValue(0)
+            setValue(0);
           }
         });
     }
