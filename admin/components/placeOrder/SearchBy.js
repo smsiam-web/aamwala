@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Button from "@/app/components/shared/Button";
 import { AiOutlineAppstoreAdd, AiOutlinePrinter } from "react-icons/ai";
 import { db } from "@/app/utils/firebase";
@@ -18,6 +18,9 @@ import { FaPrint } from "react-icons/fa";
 import { useBarcode } from "next-barcode";
 import { notifications } from "@mantine/notifications";
 import { selectUser } from "@/app/redux/slices/authSlice";
+import Link from "next/link";
+import { HiOutlineDocumentDownload } from "react-icons/hi";
+import { FiEdit } from "react-icons/fi";
 
 const SearchBy = ({ onClick }) => {
   const [currentValue, setCurrentValue] = useState("RA012");
@@ -26,6 +29,7 @@ const SearchBy = ({ onClick }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
+  const buttonRef = (useRef < HTMLButtonElement) | (null > null);
 
   useEffect(() => {
     if (!!opened) return;
@@ -49,6 +53,11 @@ const SearchBy = ({ onClick }) => {
       height: 80,
     },
   });
+  useEffect(() => {
+    if (buttonRef.current) {
+      buttonRef.current.focus(); // Auto-focus the button when the component mounts
+    }
+  }, [filterOrder]);
 
   // Change Status from print Action and check print Status
   const stickerStatus = async (item) => {
@@ -57,6 +66,25 @@ const SearchBy = ({ onClick }) => {
       : toggleOpen;
     item.status === "Processing" && generateStick(item, inputRef?.current.src);
   };
+
+  // Change Status from print Action and check print Status
+  const getInvoice = async (item) => {
+    item.status === "Pending" && invoiceGenerate(item);
+
+    item.status === "Pending"
+      ? updateStatus(item, "Processing", item?.id)
+      : toggleOpen;
+    close();
+    //   console.log(item);
+  };
+  // Change Status from status Action
+  const onStatusChanged = async (e, id) => {
+    e.preventDefault();
+    const status = e.target.value;
+
+    updateStatus(filterOrder, status, id);
+  };
+
   // update status on firebase
   const updateStatus = async (i, status, id) => {
     await db
@@ -77,17 +105,6 @@ const SearchBy = ({ onClick }) => {
       color: "blue",
     });
     close();
-  };
-
-  // Change Status from print Action and check print Status
-  const getInvoice = async (item) => {
-    item.status === "Pending" && invoiceGenerate(item);
-
-    item.status === "Pending"
-      ? updateStatus(item, "Processing", item?.id)
-      : toggleOpen;
-    close();
-    //   console.log(item);
   };
 
   // // search config
@@ -202,7 +219,6 @@ const SearchBy = ({ onClick }) => {
           dispatch(updateSingleOrder([singleOrder]));
           setFilterOrder(singleOrder);
           open();
-          console.log([singleOrder]);
         }
       });
   };
@@ -212,9 +228,68 @@ const SearchBy = ({ onClick }) => {
       <Modal opened={opened} onClose={close} size="xl" title="Found Data...">
         {filterOrder && (
           <div className="p-3">
-            <h1 className="text-center text-2xl font-semibold border-b pb-3">
-              ID #{filterOrder.id} ({filterOrder.status})
-            </h1>
+            <div className="flex justify-end">
+              <div
+                className={`inline-block px-4 text-center ${
+                  user.staff_role === "HR" ||
+                  user.staff_role == "Admin" ||
+                  user.staff_role === "Sales Manager"
+                    ? ""
+                    : "hidden"
+                }`}
+              >
+                <select
+                  className="bg-slate-800 flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer hover:bg-slate-900 text-xs text-white font-medium hover:shadow-lg transition-all duration-300"
+                  onChange={(e) => onStatusChanged(e, filterOrder.id)}
+                >
+                  <option
+                    value={filterOrder.status}
+                    className="capitalize"
+                    hidden
+                  >
+                    {filterOrder.status}
+                  </option>
+
+                  <option value="Pending">Pending</option>
+                  {user.staff_role !== "Sales Manager" && (
+                    <option value="Processing">Processing</option>
+                  )}
+                  {user.staff_role !== "Sales Manager" && (
+                    <option value="Shipped">Shipped</option>
+                  )}
+                  {user.staff_role !== "Sales Manager" && (
+                    <option value="Delivered">Delivered</option>
+                  )}
+
+                  <option value="Hold">Hold</option>
+                  {user.staff_role !== "Sales Manager" && (
+                    <option value="Returned">Returned</option>
+                  )}
+
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              {(filterOrder.status === "Pending" &&
+                user.staff_role === "Sales Excutive") ||
+                (user.staff_role === "HR" && (
+                  <Link
+                    href={`/admin/place-order/edit-order/id=${filterOrder.id}`}
+                  >
+                    <span className="bg-black flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer  text-xs text-white font-medium hover:shadow-lg transition-all duration-300">
+                      <FiEdit size={14} /> Edit
+                    </span>
+                  </Link>
+                ))}
+            </div>
+            <div>
+              <h1 className="text-center text-2xl font-semibold pb-1">
+                ID #{filterOrder.id} ({filterOrder.status})
+              </h1>
+              <h1 className="text-center text-2xl font-semibold border-b pb-3">
+                SFC #{filterOrder?.sfc?.consignment_id}
+              </h1>
+            </div>
+
             <div className="pt-3 flex justify-between w-full">
               <div className="w-7/12">
                 <h2 className="text-lg font-semibold">
@@ -303,25 +378,27 @@ const SearchBy = ({ onClick }) => {
               {user.staff_role === "HR" &&
                 filterOrder.status === "Processing" && (
                   <Tooltip label="Sticker" color="green" withArrow>
-                    <span
+                    <button
                       title="Sticker"
                       className="bg-green-400 flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer hover:bg-green-500 text-sm text-white font-medium hover:shadow-lg transition-all duration-300"
                       onClick={() => stickerStatus(filterOrder)}
                     >
                       <FaPrint size={14} /> Sticker
-                    </span>
+                    </button>
                   </Tooltip>
                 )}
               {(user.staff_role === "HR" || user.staff_role === "Admin") &&
                 filterOrder.status === "Pending" && (
                   <Tooltip label="Invoice" color="blue" withArrow>
-                    <span
+                    <button
+                      ref={buttonRef}
+                      autoFocus
                       title="Invoice"
                       className="bg-blue-400 flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer hover:bg-blue-500 text-sm text-white font-medium hover:shadow-lg transition-all duration-300"
                       onClick={() => getInvoice(filterOrder)}
                     >
                       <AiOutlinePrinter size={18} /> Invoice
-                    </span>
+                    </button>
                   </Tooltip>
                 )}
             </div>

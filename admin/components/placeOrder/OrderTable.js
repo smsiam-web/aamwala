@@ -422,19 +422,24 @@ const OrderTable = () => {
                                 </Tooltip>
                               </Link>
                             </td>
-                            {user.staff_role === "Sales Manager" && (
-                              <td className="px-4 py-3">
-                                <Link
-                                  href={`/admin/place-order/edit-order/id=${item.id}`}
-                                >
-                                  <Tooltip label="Edit" color="blue" withArrow>
-                                    <span className="cursor-pointer hover:text-blue-400">
-                                      <FiEdit size={16} />
-                                    </span>
-                                  </Tooltip>
-                                </Link>
-                              </td>
-                            )}
+                            {user.staff_role === "Sales Manager" ||
+                              (user?.staff_role === "Sales Executive" && (
+                                <td className="px-4 py-3">
+                                  <Link
+                                    href={`/admin/place-order/edit-order/id=${item.id}`}
+                                  >
+                                    <Tooltip
+                                      label="Edit"
+                                      color="blue"
+                                      withArrow
+                                    >
+                                      <span className="cursor-pointer hover:text-blue-400">
+                                        <FiEdit size={16} />
+                                      </span>
+                                    </Tooltip>
+                                  </Link>
+                                </td>
+                              ))}
 
                             {(user.staff_role === "HR" ||
                               user.staff_role === "Admin") && (

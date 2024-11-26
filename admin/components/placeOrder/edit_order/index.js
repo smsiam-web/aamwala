@@ -133,7 +133,7 @@ const EditOrder = ({ onClick }) => {
       timestamp: singleOrder?.timestamp,
       updateBy,
       placeBy,
-      status: "Pending",
+      status: singleOrder?.status,
       orderID: id,
     };
 
