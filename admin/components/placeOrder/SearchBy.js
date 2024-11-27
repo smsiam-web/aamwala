@@ -271,7 +271,9 @@ const SearchBy = ({ onClick }) => {
               </div>
               {(filterOrder.status === "Pending" &&
                 user.staff_role === "Sales Excutive") ||
-                (user.staff_role === "HR" && (
+                ((user.staff_role === "HR" ||
+                  user?.staff_role === "Sales Manager" ||
+                  user?.staff_role === "admin") && (
                   <Link
                     href={`/admin/place-order/edit-order/id=${filterOrder.id}`}
                   >
