@@ -23,9 +23,13 @@ const validationSchema = Yup.object().shape({
     .required()
     .label("Phone number"),
   customer_name: Yup.string().max(50).required().label("Name"),
+  received_by: Yup.string().max(60).required().label("Received By"),
+  order_from: Yup.string().max(60).required().label("order from"),
   customer_address: Yup.string().max(300).required().label("Address"),
+  ad_ID: Yup.string().max(5).required().label("Ad ID"),
   salePrice: Yup.number().required().label("Sale Price"),
-  note: Yup.string().max(500).label("Note"),
+  note: Yup.string().max(400).label("Note"),
+  invoice_Note: Yup.string().max(400).label("Invoice Note"),
 });
 
 const AddOrder = ({ onClick }) => {
@@ -177,7 +181,7 @@ const AddOrder = ({ onClick }) => {
                 tracking_code: data?.consignment?.tracking_code || null,
               };
               sendConfirmationMsg(values, orderID, tracking_code);
-              createCustomer(values, date, cusetomer_id)
+              createCustomer(values, date, cusetomer_id);
               const orderData = {
                 sfc,
                 deliveryCrg,
@@ -195,7 +199,7 @@ const AddOrder = ({ onClick }) => {
               };
               console.log(orderData);
               try {
-                db.collection("placeOrder").doc(orderID).set(orderData);               
+                db.collection("placeOrder").doc(orderID).set(orderData);
               } catch (error) {
                 notifications.show({
                   title: "Failed to place order",
@@ -396,7 +400,7 @@ const AddOrder = ({ onClick }) => {
       });
   };
   // create Customer on firebase database
-  const createCustomer = async (values,  cusetomer_id, timestamp) => {
+  const createCustomer = async (values, cusetomer_id, timestamp) => {
     await db.collection("createCustomer").doc(values?.phone_number).set({
       cus_name: values.customer_name,
       cus_contact: values.phone_number,
@@ -416,6 +420,10 @@ const AddOrder = ({ onClick }) => {
             customer_name: "",
             customer_address: "",
             salePrice: "",
+            received_by: "",
+            order_from: "Messenger Order",
+            ad_ID: "",
+            invoice_Note: "",
             note: "",
           }}
           onSubmit={placeOrder}

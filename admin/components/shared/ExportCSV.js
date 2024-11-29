@@ -37,6 +37,9 @@ const ExportCSV = () => {
               Weight: doc?.data()?.weight,
               Created: doc?.data()?.date,
               Status: doc?.data()?.status,
+              Ad_ID: doc?.data()?.customer_details.ad_ID || "null",
+              order_from: doc?.data()?.customer_details.order_from || "null",
+              received_by: doc?.data()?.customer_details.received_by || "null",
               Placed_By: doc?.data()?.placeBy?.user || doc?.data()?.placeBy,
               Note: doc?.data()?.customer_details.note,
             });

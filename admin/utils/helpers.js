@@ -269,6 +269,12 @@ export const invoiceGenerate = (item) => {
   doc.text(item_06_price, 137, 208.2);
   doc.text(item_06_total_price, 168, 208.2);
 
+  doc
+    .setFontSize(10)
+    .text(`[Note: ${item?.customer_details?.invoice_Note}]`, 8, 222.2, {
+      maxWidth: 120,
+      align: "left",
+    });
   doc.text(`${item?.totalPrice}/-`.toString(), 161, 225.5);
   doc.text("Home", 182, 233.8);
   doc.text(`${item?.deliveryCrg}/-`, 161, 233.8);

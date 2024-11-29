@@ -269,19 +269,19 @@ const SearchBy = ({ onClick }) => {
                   <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
-              {(filterOrder.status === "Pending" &&
-                user.staff_role === "Sales Excutive") ||
-                ((user.staff_role === "HR" ||
-                  user?.staff_role === "Sales Manager" ||
-                  user?.staff_role === "admin") && (
-                  <Link
-                    href={`/admin/place-order/edit-order/id=${filterOrder.id}`}
-                  >
-                    <span className="bg-black flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer  text-xs text-white font-medium hover:shadow-lg transition-all duration-300">
-                      <FiEdit size={14} /> Edit
-                    </span>
-                  </Link>
-                ))}
+              {((filterOrder.status === "Pending" &&
+                user.staff_role === "Sales Executive") ||
+                user.staff_role === "HR" ||
+                user?.staff_role === "Sales Manager" ||
+                user?.staff_role === "admin") && (
+                <Link
+                  href={`/admin/place-order/edit-order/id=${filterOrder.id}`}
+                >
+                  <span className="bg-black flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer  text-xs text-white font-medium hover:shadow-lg transition-all duration-300">
+                    <FiEdit size={14} /> Edit
+                  </span>
+                </Link>
+              )}
             </div>
             <div>
               <h1 className="text-center text-2xl font-semibold pb-1">

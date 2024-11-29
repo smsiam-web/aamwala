@@ -259,6 +259,9 @@ const EditOrder = ({ onClick }) => {
                 singleOrder?.customer_details?.customer_address || "",
               salePrice: singleOrder?.customer_details?.salePrice || "",
               note: singleOrder?.customer_details?.note || "",
+              invoice_Note: singleOrder?.customer_details?.invoice_Note || "",
+              ad_ID: singleOrder?.customer_details?.ad_ID || "",
+              received_by: singleOrder?.customer_details?.received_by || "",
             }}
             onSubmit={updateOrder}
             validationSchema={validationSchema}
@@ -278,7 +281,7 @@ const EditOrder = ({ onClick }) => {
               </div>
               <div className="">
                 <div className="w-full py-3 px-6 md:px-4 mb-4">
-                  <OrderDetailsForm />
+                  <OrderDetailsForm singleOrder={singleOrder} />
                 </div>
 
                 <div className="w-full">

@@ -194,10 +194,12 @@ const GeneratePdf = ({ html, disabled, item, id }) => {
     doc.text(item_05_total_price, 168, 194.6);
 
     doc.text(item_06, 30, 208.2);
+    doc.text(item_06, 30, 208.2);
     doc.text(item_06_quantity, 116, 208.2);
     doc.text(item_06_price, 137, 208.2);
     doc.text(item_06_total_price, 168, 208.2);
 
+    doc.text(note, 30, 208.2);
     doc.text(subTotal, 161, 225.5);
     doc.text(shipping_type, 182, 233.8);
     doc.text(shipping_cost, 161, 233.8);

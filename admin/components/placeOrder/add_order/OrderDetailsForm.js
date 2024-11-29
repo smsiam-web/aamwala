@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Tabs } from "@mantine/core";
-import { AppTextArea, FormInput, FormRadio } from "../../shared/Form";
+import {
+  AppTextArea,
+  FormDropdown,
+  FormInput,
+  FormRadio,
+} from "../../shared/Form";
 import { db } from "@/app/utils/firebase";
 import { useSelector } from "react-redux";
 import { selectSingleCustomer } from "@/app/redux/slices/singleCustomerSlice";
 import { selectWeightDetails } from "@/app/redux/slices/tempWeightDetails";
 
-const OrderDetailsForm = () => {
+const OrderDetailsForm = ({ singleOrder }) => {
   const [mango, setMango] = useState(null);
   const [khejurGur, setKhejurGur] = useState(null);
   const [honey, setHoney] = useState(null);
@@ -68,10 +73,100 @@ const OrderDetailsForm = () => {
       unSub();
     };
   }, []);
+  const StuffList = [
+    {
+      name: "MD Mithun",
+      id: "MD Mithun",
+    },
+
+    {
+      name: "Mr Osman",
+      id: "Mr Osman",
+    },
+    {
+      name: "Mr Mehedi",
+      id: "Mr Mehedi",
+    },
+    {
+      name: "Mr Tipu",
+      id: "Mr Tipu",
+    },
+    {
+      name: "Rakibul Islam",
+      id: "Rakibul Islam",
+    },
+    {
+      name: "Md Mahim",
+      id: "Md Mahim",
+    },
+    {
+      name: "MD Minhaz",
+      id: "MD Minhaz",
+    },
+    {
+      name: "Md. Rimon",
+      id: "Md. Rimon",
+    },
+    {
+      name: "Rezoan Habib",
+      id: "Rezoan Habib",
+    },
+    {
+      name: "Mr. Ajoy Chandro",
+      id: "Mr. Ajoy Chandro",
+    },
+
+    {
+      name: "Syed Siam Chowdhury",
+      id: "Syed Siam Chowdhury",
+    },
+    {
+      name: "Admin",
+      id: "Admin",
+    },
+  ];
+  const OrderFrom = [
+    {
+      name: "Messenger Order",
+      id: "Messenger Order",
+    },
+    {
+      name: "Phone Call Order",
+      id: "Phone Call Order",
+    },
+    {
+      name: "WhatsApp Order",
+      id: "WhatsApp Order",
+    },
+  ];
+  const AdID = [
+    {
+      name: "5",
+      id: "5",
+    },
+    {
+      name: "4",
+      id: "4",
+    },
+    {
+      name: "3",
+      id: "3",
+    },
+    {
+      name: "2",
+      id: "2",
+    },
+    {
+      name: "1",
+      id: "1",
+    },
+  ];
+
+  // console.log(singleOrder.customer_details);
 
   return (
     <div className="max-h-full">
-      <div>
+      <div className="pb-2">
         <span>Delivery Type:</span>
         <FormRadio
           type="text"
@@ -81,7 +176,9 @@ const OrderDetailsForm = () => {
         />
       </div>
       <div>
-        <span>Phone Number</span>
+        <span>
+          Phone Number<span className="text-red-600">*</span>
+        </span>
         <FormInput
           type="text"
           max={11}
@@ -90,11 +187,15 @@ const OrderDetailsForm = () => {
         />
       </div>
       <div>
-        <span>Name</span>
+        <span>
+          Name<span className="text-red-600">*</span>
+        </span>
         <FormInput name="customer_name" placeholder="Name" />
       </div>
       <div>
-        <span>Address</span>
+        <span>
+          Address<span className="text-red-600">*</span>
+        </span>
         <span className="text-sub-title text-sm block">
           (maximum 300 characters)
         </span>
@@ -181,7 +282,12 @@ const OrderDetailsForm = () => {
                   </span>
                   <div className="flex items-center pt-1 sm:pt-2">
                     <div className="w-2/3">
-                      <FormInput type="number" name={i.yup} placeholder="" />
+                      <FormInput
+                        type="number"
+                        name={i.yup}
+                        placeholder=""
+                        // defaultValue={1}
+                      />
                     </div>
                     <span className="text-lg text-white font-bold">.kg</span>
                   </div>
@@ -254,15 +360,46 @@ const OrderDetailsForm = () => {
         </Tabs>
       </div>
       <div className="mt-3">
-        <span>Price</span>
+        <span>
+          Price<span className="text-red-600">*</span>
+        </span>
         <FormInput type="number" name="salePrice" placeholder="Price" />
       </div>
-      <div>
-        <span>Note</span>
-        <span className="text-sub-title text-sm block">
-          (maximum 500 characters)
+      <div className="mt-3">
+        <span>
+          Received by<span className="text-red-600">*</span>
         </span>
-        <AppTextArea name="note" placeholder="Note..." />
+        <FormDropdown
+          name="received_by"
+          placeholder="Order received by"
+          items={StuffList}
+        />
+      </div>
+      <div className="mt-3">
+        <span>Ad ID</span>
+        <FormDropdown name="ad_ID" placeholder="Ad ID" items={AdID} />
+      </div>
+      <div className="mt-3">
+        <span>Order From</span>
+        <FormDropdown
+          name="order_from"
+          placeholder="Messenger Order"
+          items={OrderFrom}
+        />
+      </div>
+      <div>
+        <span>Invoice Note:</span>
+        <span className="text-sub-title text-sm block">
+          (maximum 400 characters)
+        </span>
+        <AppTextArea name="invoice_Note" placeholder="Invoice note..." />
+      </div>
+      <div>
+        <span>Courier Note:</span>
+        <span className="text-sub-title text-sm block">
+          (maximum 400 characters)
+        </span>
+        <AppTextArea name="note" placeholder="Courier note..." />
       </div>
     </div>
   );
