@@ -5,15 +5,19 @@ import { AppForm, FormBtn } from "../../shared/Form";
 import { db, timestamp } from "@/app/utils/firebase";
 import Button from "../../shared/Button";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "@/app/redux/slices/authSlice";
 import { Today } from "@/admin/utils/helpers";
 import { selectConfig } from "@/app/redux/slices/configSlice";
 import axios from "axios";
-import { selectSingleCustomer } from "@/app/redux/slices/singleCustomerSlice";
+import {
+  selectSingleCustomer,
+  updateSingleCustomer,
+} from "@/app/redux/slices/singleCustomerSlice";
 import { selectProduct } from "@/app/redux/slices/productSlice";
 import { notifications } from "@mantine/notifications";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const validationSchema = Yup.object().shape({
   delivery_type: Yup.boolean().required().label("Delivery type"),
@@ -46,6 +50,8 @@ const EditOrder = ({ onClick }) => {
         setSingleOrder(doc.data());
       });
   }, [id]);
+
+  const dispatch = useDispatch();
 
   // Get products from firebase database
   useEffect(() => {
@@ -137,8 +143,6 @@ const EditOrder = ({ onClick }) => {
       orderID: id,
     };
 
-    console.log(orderData);
-
     try {
       db.collection("placeOrder")
         .doc(id)
@@ -150,8 +154,9 @@ const EditOrder = ({ onClick }) => {
             color: "blue",
           })
         );
-      sendConfirmationMsg(values, id, tracking_code);
+      // sendConfirmationMsg(values, id, tracking_code);
       createCustomer(values, date);
+      dispatch(updateSingleCustomer([]));
     } catch (error) {
       notifications.show({
         title: "Failed to place order",
@@ -160,8 +165,10 @@ const EditOrder = ({ onClick }) => {
       });
       setLoading(false);
       setOrderResponse(null);
+      setSingleOrder(null);
       console.error("Error placing order:", error);
     } finally {
+      setSingleOrder(null);
       router.push("/admin/place-order/id=" + id);
     }
     setLoading(false);
@@ -287,11 +294,13 @@ const EditOrder = ({ onClick }) => {
                 <div className="w-full">
                   <div className="py-5 px-6 md:px-4 max-h-full grid grid-cols-4 gap-4">
                     <div className="col-span-2">
-                      <Button
-                        onClick={onClick}
-                        title="Cancel"
-                        className="bg-red-100 hover:bg-red-200 hover:shadow-lg text-red-600 transition-all duration-300 w-full"
-                      />
+                      <Link href={`/admin/orders/invoice/id=${id}`}>
+                        <Button
+                          onClick={onClick}
+                          title="Cancel"
+                          className="bg-red-100 hover:bg-red-200 hover:shadow-lg text-red-600 transition-all duration-300 w-full"
+                        />
+                      </Link>
                     </div>
                     <div className="col-span-2">
                       <FormBtn

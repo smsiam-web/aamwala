@@ -53,62 +53,86 @@ const OrderDetails = ({ onClick, item }) => {
         <img src="/invoice/head.png" alt="" />
         <div className="flex flex-col justify-between px-5 sm:px-10 h-auto font-mono">
           <div>
-            <div className="flex justify-between items-center sm:py-2 sm:mb-2">
+            <div className="flex justify-between items-start sm:py-2 sm:mb-2">
               <div className=" sm:pt-1 flex justify-center items-center">
                 <span className="text-sm sm:text-xl md:text-2xl  text-title">
                   Invoice ID:{" "}
                 </span>
-                <span className="text-primary text-lg sm:text-sl md:text-2xl  font-bold">
+                <span className="text-primary text-lg sm:text-lg  md:text-2xl  font-bold">
                   #
                 </span>
                 <span
                   id="invoiceNo"
-                  className="text-primary font-bold text-sm sm:text-xl md:text-2xl  font-mono"
+                  className="text-primary font-bold text-sm sm:text-lg md:text-2xl  font-mono"
                 >
                   {id}
                 </span>
               </div>
-              <div className="flex justify-center items-center">
-                <span className="text-sm sm:text-xl md:text-2xl  text-title">
-                  Status:{" "}
-                </span>
-                <span
-                  id="status"
-                  className="text-primary text-sm sm:text-xl md:text-2xl  font-bold capitalize font-mono"
-                >
-                  {singleOrder?.status}.
-                </span>
+              <div className="flex flex-col justify-center items-start">
+                <div className="-pb-3]">
+                  <span className="text-sm  md:text-xl  text-title">
+                    Date:{" "}
+                  </span>
+                  <span
+                    id="status"
+                    className="text-sm  md:text-xl capitalize font-mono"
+                  >
+                    {singleOrder?.date}.
+                  </span>
+                </div>
+                <div>
+                  <span className="text-sm  md:text-xl  text-title">
+                    Received by:{" "}
+                  </span>
+                  <span
+                    id="status"
+                    className=" text-sm  md:text-xl  capitalize font-mono"
+                  >
+                    {singleOrder?.customer_details?.received_by}.
+                  </span>
+                </div>
+                <div>
+                  <span className="text-sm  md:text-xl  text-title">
+                    Status:{" "}
+                  </span>
+                  <span
+                    id="status"
+                    className="text-primary text-sm  md:text-xl  font-bold capitalize font-mono"
+                  >
+                    {singleOrder?.status}.
+                  </span>
+                </div>
               </div>
             </div>
             <div className="sm:mb-4">
-              <h1 className="text-title text-base md:text-4xl font-semibold border-b-2">
+              <h1 className="text-title text-lg md:text-2xl font-semibold border-b-2">
                 Customer Details:
               </h1>
 
               <div>
-                <span className="text-sm sm:text-xl md:text-2xl xl:text-4xl font-medium">
+                <span className="text-sm sm:text-lg md:text-xl xl:text-2xl font-medium">
                   Name:{" "}
                 </span>
                 <span
                   id="name"
-                  className="text-sm sm:text-xl md:text-2xl xl:text-4xl font-medium"
+                  className="text-sm sm:text-lg md:text-xl xl:text-2xl font-medium"
                 >
                   {singleOrder?.customer_details.customer_name}
                 </span>
               </div>
               <div>
-                <span className="text-sm sm:text-xl md:text-2xl xl:text-4xl font-medium">
+                <span className="text-sm sm:text-lg md:text-xl xl:text-2xl font-medium">
                   Contact:{" "}
                 </span>
                 <span
                   id="phone"
-                  className="font-medium text-sm sm:text-xl md:text-2xl xl:text-4xl font-mono"
+                  className="font-medium text-sm sm:text-lg md:text-xl xl:text-2xl font-mono"
                 >
                   {singleOrder?.customer_details.phone_number}
                 </span>
               </div>
               <div className="">
-                <span className="text-sm sm:text-xl md:text-2xl xl:text-4xl font-medium ">
+                <span className="text-sm sm:text-lg md:text-xl xl:text-2xl font-medium ">
                   Address:{" "}
                 </span>
                 <span
@@ -120,24 +144,24 @@ const OrderDetails = ({ onClick, item }) => {
               </div>
             </div>
             <div>
-              <h1 className="text-title text-lg sm:text-2xl md:text-4xl font-semibold border-b sm:border-b-2">
+              <h1 className="text-title text-lg md:text-2xl font-semibold border-b sm:border-b-2">
                 Order Details:
               </h1>
               <div>
                 <div className="flex justify-between py-1 border-b sm:border-b-2 text-sm font-medium">
                   <div>
-                    <h2 className="text-sm sm:text-xl text-title font-mono font-semibold">
+                    <h2 className="text-sm sm:text-lg text-title font-mono font-semibold">
                       Item.
                     </h2>
                   </div>
                   <div className="flex justify-between w-7/12">
-                    <span className="text-sm sm:text-xl text-title font-mono font-semibold">
+                    <span className="text-sm sm:text-lg text-title font-mono font-semibold">
                       Weight.
                     </span>
-                    <span className="text-sm sm:text-xl text-title font-mono font-semibold">
+                    <span className="text-sm sm:text-lg text-title font-mono font-semibold">
                       Price.
                     </span>
-                    <span className="text-sm sm:text-xl text-title font-mono font-semibold">
+                    <span className="text-sm sm:text-lg text-title font-mono font-semibold">
                       Total(BDT)
                     </span>
                   </div>
@@ -146,10 +170,10 @@ const OrderDetails = ({ onClick, item }) => {
               {singleOrder &&
                 singleOrder.order.map((item, i) => (
                   <div key={i}>
-                    <div className="flex justify-between py-1 md:py-3 border-b sm:border-b-2">
+                    <div className="flex justify-between py-1 md:py-2 border-b sm:border-b-2">
                       <div>
                         <h2
-                          className="text-sm sm:text-xl md:text-2xl text-title font-mono"
+                          className="text-sm sm:text-lg md:text-xl text-title font-mono"
                           id={`item_0${++i}`}
                         >
                           {item.title}
@@ -157,19 +181,19 @@ const OrderDetails = ({ onClick, item }) => {
                       </div>
                       <div className="flex justify-between w-7/12">
                         <span
-                          className="text-sm sm:text-xl md:text-2xl text-title font-mono"
+                          className="text-sm sm:text-lg md:text-xl text-title font-mono"
                           id={`item_0${i}_quantity`}
                         >
                           {item.quantity}kg
                         </span>
                         <span
-                          className="text-sm sm:text-xl md:text-2xl text-title font-mono"
+                          className="text-sm sm:text-lg md:text-xl text-title font-mono"
                           id={`item_0${i}_price`}
                         >
                           {item.price}
                         </span>
                         <span
-                          className="text-sm sm:text-xl md:text-2xl text-title font-mono"
+                          className="text-sm sm:text-lg md:text-xl text-title font-mono"
                           id={`item_0${i}_total_price`}
                         >
                           {item.total_price}/-
@@ -185,8 +209,8 @@ const OrderDetails = ({ onClick, item }) => {
               <Image
                 src="/invoice/col.png"
                 alt="adv"
-                width={400}
-                height={400}
+                width={300}
+                height={300}
               />
             </div>
 

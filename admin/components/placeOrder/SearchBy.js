@@ -307,8 +307,19 @@ const SearchBy = ({ onClick }) => {
               <div className="w-4/12 text-end">
                 <h3>{ToDateAndTime(filterOrder.timestamp)}</h3>
                 <h3>
+                  Order type:{" "}
+                  {filterOrder.customer_details?.order_form || "null"}
+                </h3>
+                <h3>
+                  Received by:{" "}
+                  {filterOrder.customer_details?.received_by || "null"}
+                </h3>
+                <h3>
                   Entry by: {filterOrder?.placeBy?.user || filterOrder.placeBy}
                 </h3>
+                {filterOrder?.placeBy?.user && (
+                  <h3>Updated by: {filterOrder?.placeBy?.user}</h3>
+                )}
                 <h3>Weight: {filterOrder.weight}kg</h3>
               </div>
             </div>

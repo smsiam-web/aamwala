@@ -246,11 +246,8 @@ const OrderTable = () => {
                   <th className="px-4 py-3 ">Created at</th>
                   <th className="px-4 py-3 ">Created By</th>
                   <th className="px-4 py-3 ">invoice</th>
-                  {(user.staff_role === "HR" ||
-                    user.staff_role === "Admin" ||
-                    user?.staff_role === "Sales Manager") && (
-                    <th className="px-4 py-3 ">ACTIONS</th>
-                  )}
+
+                  <th className="px-4 py-3 ">ACTIONS</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100 ">
@@ -364,7 +361,7 @@ const OrderTable = () => {
                             <td
                               className={`px-4 py-3 text-center ${
                                 user.staff_role === "HR" ||
-                                user.staff_role == +"Admin" ||
+                                user.staff_role === "Admin" ||
                                 user.staff_role === "Sales Manager"
                                   ? ""
                                   : "hidden"
@@ -422,8 +419,12 @@ const OrderTable = () => {
                                 </Tooltip>
                               </Link>
                             </td>
-                            {(user.staff_role === "Sales Manager" ||
-                              user?.staff_role === "Sales Executive") && (
+
+                            {(item.status === "Pending" &&
+                              user.staff_role === "Sales Executive") ||
+                            user.staff_role === "HR" ||
+                            user?.staff_role === "Sales Manager" ||
+                            user?.staff_role === "admin" ? (
                               <td className="px-4 py-3 ">
                                 <Link
                                   href={`/admin/place-order/edit-order/id=${item.id}`}
@@ -434,6 +435,18 @@ const OrderTable = () => {
                                     </span>
                                   </Tooltip>
                                 </Link>
+                              </td>
+                            ) : (
+                              <td className="px-4 py-3 ">
+                                <Tooltip
+                                  label="Not Available"
+                                  color="orange"
+                                  withArrow
+                                >
+                                  <span className="items-center text-slate-400 justify-center flex">
+                                    <FiEdit size={16} />
+                                  </span>
+                                </Tooltip>
                               </td>
                             )}
 

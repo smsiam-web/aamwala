@@ -24,9 +24,9 @@ const validationSchema = Yup.object().shape({
     .label("Phone number"),
   customer_name: Yup.string().max(50).required().label("Name"),
   received_by: Yup.string().max(60).required().label("Received By"),
-  order_from: Yup.string().max(60).required().label("order from"),
+  order_from: Yup.string().max(60).required().default("Messenger Order"),
   customer_address: Yup.string().max(300).required().label("Address"),
-  ad_ID: Yup.string().max(5).required().label("Ad ID"),
+  ad_ID: Yup.string().max(5).label("Ad ID"),
   salePrice: Yup.number().required().label("Sale Price"),
   note: Yup.string().max(400).label("Note"),
   invoice_Note: Yup.string().max(400).label("Invoice Note"),
@@ -50,7 +50,7 @@ const AddOrder = ({ onClick }) => {
     setProducts(temp);
   }, []);
 
-  // Get products from firebase database
+  // Get OrderID from firebase database
   useEffect(() => {
     const unSub = db.collection("orderID").onSnapshot((snap) => {
       snap.docs.map((doc) => {
@@ -152,7 +152,7 @@ const AddOrder = ({ onClick }) => {
           invoice: `${orderID}`,
           note: `${values.note}`,
           recipient_address: `${
-            values?.delivery_type ? "(HOME Delivery) " : "(POINT Delivery) "
+            values?.delivery_type ? "(HOME Delivery), " : "(POINT Delivery), "
           }${values.customer_address}`,
           recipient_name: `${values.customer_name}`,
           recipient_phone: `${values.phone_number}`,
@@ -197,7 +197,7 @@ const AddOrder = ({ onClick }) => {
                 status: "Pending",
                 orderID,
               };
-              console.log(orderData);
+              // console.log(orderData);
               try {
                 db.collection("placeOrder").doc(orderID).set(orderData);
               } catch (error) {

@@ -162,7 +162,7 @@ const OrderDetailsForm = ({ singleOrder }) => {
     },
   ];
 
-  // console.log(singleOrder.customer_details);
+  const obj = singleOrder?.order;
 
   return (
     <div className="max-h-full">
@@ -204,6 +204,46 @@ const OrderDetailsForm = ({ singleOrder }) => {
           placeholder="Ex: H#12, R#04, Sec# 4, Mirpur Dhaka."
         />
       </div>
+
+      <div className="pb-3">
+        {!!obj?.length && <span className="md:text-2xl">Order</span>}
+        {!!obj?.length &&
+          obj.map((item, i) => (
+            <div key={i}>
+              <div className="flex justify-between py-1 border-b sm:border-b-2">
+                <div>
+                  <h2
+                    className="text-md md:text-xl text-slate-500 font-mono"
+                    id={`item_0${++i}`}
+                  >
+                    {item.title}
+                  </h2>
+                </div>
+                <div className="flex justify-between w-7/12">
+                  <span
+                    className="text-md md:text-xl text-slate-500 font-mono"
+                    id={`item_0${i}_quantity`}
+                  >
+                    {item.quantity}kg
+                  </span>
+                  <span
+                    className="text-md md:text-xl text-slate-500 font-mono"
+                    id={`item_0${i}_price`}
+                  >
+                    {item.price}
+                  </span>
+                  <span
+                    className="text-md md:text-xl text-slate-500 font-mono"
+                    id={`item_0${i}_total_price`}
+                  >
+                    {item.total_price}/-
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+      </div>
+
       <div>
         <Tabs color="violet" defaultValue="khejurGur" variant="pills">
           <Tabs.List>
@@ -282,12 +322,7 @@ const OrderDetailsForm = ({ singleOrder }) => {
                   </span>
                   <div className="flex items-center pt-1 sm:pt-2">
                     <div className="w-2/3">
-                      <FormInput
-                        type="number"
-                        name={i.yup}
-                        placeholder=""
-                        // defaultValue={1}
-                      />
+                      <FormInput type="number" name={i.yup} placeholder="" />
                     </div>
                     <span className="text-lg text-white font-bold">.kg</span>
                   </div>
