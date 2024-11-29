@@ -228,7 +228,7 @@ const SearchBy = ({ onClick }) => {
       <Modal opened={opened} onClose={close} size="xl" title="Found Data...">
         {filterOrder && (
           <div className="p-3">
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
               <div
                 className={`inline-block px-4 text-center ${
                   user.staff_role === "HR" ||
@@ -282,6 +282,11 @@ const SearchBy = ({ onClick }) => {
                   </span>
                 </Link>
               )}
+              <Link href={`/admin/orders/invoice/id=${filterOrder.id}`}>
+                <span className="bg-black flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer  text-xs text-white font-medium hover:shadow-lg transition-all duration-300">
+                  <HiOutlineDocumentDownload size={18} /> Invoice
+                </span>
+              </Link>
             </div>
             <div>
               <h1 className="text-center text-2xl font-semibold pb-1">
