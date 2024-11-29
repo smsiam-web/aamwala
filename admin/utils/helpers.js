@@ -270,8 +270,8 @@ export const invoiceGenerate = (item) => {
   doc.text(item_06_total_price, 168, 208.2);
 
   doc
-    .setFontSize(10)
-    .text(`[Note: ${item?.customer_details?.invoice_Note}]`, 8, 222.2, {
+    .setFontSize(12)
+    .text(`[Note: ${item?.customer_details?.invoice_Note || ""}]`, 8, 218.2, {
       maxWidth: 120,
       align: "left",
     });

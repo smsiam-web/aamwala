@@ -231,7 +231,7 @@ const OrderTable = () => {
                   <th className="px-4 py-3 ">Delivery Type</th>
                   <th className="px-4 py-3 ">DISCOUNT</th>
                   <th className="px-4 py-3 ">Amount</th>
-                  <th className="px-4 py-3 ">status</th>
+                  <th className="px-4 py-3 text-center ">status</th>
                   <th
                     className={`px-4 py-3 ${
                       user.staff_role === "HR" ||
@@ -247,7 +247,7 @@ const OrderTable = () => {
                   <th className="px-4 py-3 ">Created By</th>
                   <th className="px-4 py-3 ">invoice</th>
 
-                  <th className="px-4 py-3 ">ACTIONS</th>
+                  <th className="px-4 py-3 text-center">ACTIONS</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100 ">
@@ -422,7 +422,6 @@ const OrderTable = () => {
 
                             {(item.status === "Pending" &&
                               user.staff_role === "Sales Executive") ||
-                            user.staff_role === "HR" ||
                             user?.staff_role === "Sales Manager" ||
                             user?.staff_role === "admin" ? (
                               <td className="px-4 py-3 ">
@@ -437,7 +436,11 @@ const OrderTable = () => {
                                 </Link>
                               </td>
                             ) : (
-                              <td className="px-4 py-3 ">
+                              <td
+                                className={`${
+                                  user.staff_role === "HR" && "hidden"
+                                }`}
+                              >
                                 <Tooltip
                                   label="Not Available"
                                   color="orange"

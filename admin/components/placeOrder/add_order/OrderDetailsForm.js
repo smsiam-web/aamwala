@@ -10,6 +10,7 @@ import { db } from "@/app/utils/firebase";
 import { useSelector } from "react-redux";
 import { selectSingleCustomer } from "@/app/redux/slices/singleCustomerSlice";
 import { selectWeightDetails } from "@/app/redux/slices/tempWeightDetails";
+import { selectUser } from "@/app/redux/slices/authSlice";
 
 const OrderDetailsForm = ({ singleOrder }) => {
   const [mango, setMango] = useState(null);
@@ -19,6 +20,10 @@ const OrderDetailsForm = ({ singleOrder }) => {
   const [other, setOthers] = useState(null);
   const [customer, setCustomer] = useState(null);
   const [weightDetails, setweightDetails] = useState(null);
+  // const [user, setUser] = useState(null);
+
+  const user = useSelector(selectUser);
+  console.log(user?.staff_role);
 
   const getCustomer = useSelector(selectSingleCustomer);
   const getWeightDetails = useSelector(selectWeightDetails);
@@ -80,20 +85,24 @@ const OrderDetailsForm = ({ singleOrder }) => {
     },
 
     {
-      name: "Mr Osman",
-      id: "Mr Osman",
+      name: "Md Osman",
+      id: "Md Osman",
     },
     {
-      name: "Mr Mehedi",
-      id: "Mr Mehedi",
+      name: "Md Mehedi",
+      id: "Md Mehedi",
     },
     {
-      name: "Mr Tipu",
-      id: "Mr Tipu",
+      name: "Md Tipu",
+      id: "Md Tipu",
     },
     {
       name: "Rakibul Islam",
       id: "Rakibul Islam",
+    },
+    {
+      name: "Md Anik",
+      id: "Md Anik",
     },
     {
       name: "Md Mahim",
@@ -112,8 +121,8 @@ const OrderDetailsForm = ({ singleOrder }) => {
       id: "Rezoan Habib",
     },
     {
-      name: "Mr. Ajoy Chandro",
-      id: "Mr. Ajoy Chandro",
+      name: "Ajoy Chandro",
+      id: "Ajoy Chandro",
     },
 
     {
@@ -141,6 +150,18 @@ const OrderDetailsForm = ({ singleOrder }) => {
   ];
   const AdID = [
     {
+      name: "8",
+      id: "8",
+    },
+    {
+      name: "7",
+      id: "7",
+    },
+    {
+      name: "6",
+      id: "6",
+    },
+    {
       name: "5",
       id: "5",
     },
@@ -152,6 +173,7 @@ const OrderDetailsForm = ({ singleOrder }) => {
       name: "3",
       id: "3",
     },
+
     {
       name: "2",
       id: "2",
@@ -163,6 +185,7 @@ const OrderDetailsForm = ({ singleOrder }) => {
   ];
 
   const obj = singleOrder?.order;
+  console.log(!!singleOrder);
 
   return (
     <div className="max-h-full">
@@ -404,11 +427,21 @@ const OrderDetailsForm = ({ singleOrder }) => {
         <span>
           Received by<span className="text-red-600">*</span>
         </span>
-        <FormDropdown
-          name="received_by"
-          placeholder="Order received by"
-          items={StuffList}
-        />
+        {(!singleOrder && user?.staff_role === "Sales Executive") ||
+        user?.staff_role === "HR" ||
+        user?.staff_role === "Admin" ||
+        user?.staff_role === "Sales Manager" ? (
+          <FormDropdown
+            disabled
+            name="received_by"
+            placeholder="Order received by"
+            items={StuffList}
+          />
+        ) : (
+          <span className="block border px-3 py-3 rounded-md text-slate-500">
+            {singleOrder?.customer_details?.received_by || "Null"}
+          </span>
+        )}
       </div>
       <div className="mt-3">
         <span>Ad ID</span>
