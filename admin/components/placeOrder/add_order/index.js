@@ -6,12 +6,15 @@ import FormHeader from "../../shared/FormHeader";
 import { db, timestamp } from "@/app/utils/firebase";
 import Button from "../../shared/Button";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "@/app/redux/slices/authSlice";
 import { Today } from "@/admin/utils/helpers";
 import { selectConfig } from "@/app/redux/slices/configSlice";
 import axios from "axios";
-import { selectSingleCustomer } from "@/app/redux/slices/singleCustomerSlice";
+import {
+  selectSingleCustomer,
+  updateSingleCustomer,
+} from "@/app/redux/slices/singleCustomerSlice";
 import { selectProduct } from "@/app/redux/slices/productSlice";
 import { notifications } from "@mantine/notifications";
 import firebase from "firebase";
@@ -43,6 +46,7 @@ const AddOrder = ({ onClick }) => {
 
   const getCustomer = useSelector(selectSingleCustomer);
   const p = useSelector(selectProduct);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const temp = [];
@@ -117,8 +121,6 @@ const AddOrder = ({ onClick }) => {
 
     const date = Today();
 
-    console.log(values);
-
     const counterRef = db.collection("counters").doc("orderCounter");
 
     db.runTransaction(async (transaction) => {
@@ -182,6 +184,7 @@ const AddOrder = ({ onClick }) => {
                 consignment_id: data?.consignment?.consignment_id || null,
                 tracking_code: data?.consignment?.tracking_code || null,
               };
+              dispatch(updateSingleCustomer(null));
               sendConfirmationMsg(values, orderID, tracking_code);
               createCustomer(values, date, cusetomer_id);
               const orderData = {
@@ -208,10 +211,11 @@ const AddOrder = ({ onClick }) => {
                   message: `Please try again later..`,
                   color: "orange",
                 });
-                setLoading(false);
+                // setLoading(false);
                 setOrderResponse(null);
                 console.error("Error placing order:", error);
               } finally {
+                dispatch(updateSingleCustomer(null));
                 router.push("/admin/place-order/id=" + orderID);
               }
             });
@@ -221,7 +225,8 @@ const AddOrder = ({ onClick }) => {
             message: `Please try again later..`,
             color: "orange",
           });
-          setLoading(false);
+          // setLoading(false);
+          dispatch(updateSingleCustomer(null));
           setOrderResponse(null);
           console.log("Error SFC entry: ", error);
         }
@@ -233,10 +238,10 @@ const AddOrder = ({ onClick }) => {
           color: "orange",
         });
         setOrderResponse(null);
-        setLoading(false);
+        // setLoading(false);
         console.error("Transaction failed:", error);
       });
-    setLoading(false);
+    // setLoading(false);
   };
 
   // place product handler on submit

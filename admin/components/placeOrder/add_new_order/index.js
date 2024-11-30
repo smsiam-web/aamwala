@@ -5,12 +5,15 @@ import { AppForm, FormBtn } from "../../shared/Form";
 import { db, timestamp } from "@/app/utils/firebase";
 import Button from "../../shared/Button";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "@/app/redux/slices/authSlice";
 import { Today } from "@/admin/utils/helpers";
 import { selectConfig } from "@/app/redux/slices/configSlice";
 import axios from "axios";
-import { selectSingleCustomer } from "@/app/redux/slices/singleCustomerSlice";
+import {
+  selectSingleCustomer,
+  updateSingleCustomer,
+} from "@/app/redux/slices/singleCustomerSlice";
 import { selectProduct } from "@/app/redux/slices/productSlice";
 import { notifications } from "@mantine/notifications";
 import firebase from "firebase";
@@ -22,11 +25,14 @@ const validationSchema = Yup.object().shape({
     .required()
     .label("Phone number"),
   customer_name: Yup.string().max(50).required().label("Name"),
+  received_by: Yup.string().max(60).required().label("Received By"),
+  order_from: Yup.string().max(60).required().default("Messenger Order"),
   customer_address: Yup.string().max(300).required().label("Address"),
+  ad_ID: Yup.string().max(5).label("Ad ID"),
   salePrice: Yup.number().required().label("Sale Price"),
-  note: Yup.string().max(500).label("Note"),
+  note: Yup.string().max(400).label("Note"),
+  invoice_Note: Yup.string().max(400).label("Invoice Note"),
 });
-
 const AddNewOrder = ({ onClick }) => {
   const [config, setConfig] = useState(useSelector(selectConfig) || null);
   const [loading, setLoading] = useState(false);
@@ -38,6 +44,7 @@ const AddNewOrder = ({ onClick }) => {
 
   const getCustomer = useSelector(selectSingleCustomer);
   const p = useSelector(selectProduct);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const temp = [];
@@ -175,6 +182,7 @@ const AddNewOrder = ({ onClick }) => {
                 consignment_id: data?.consignment?.consignment_id || null,
                 tracking_code: data?.consignment?.tracking_code || null,
               };
+              dispatch(updateSingleCustomer(null));
               sendConfirmationMsg(values, orderID, tracking_code);
               createCustomer(values, date, cusetomer_id);
               const orderData = {
@@ -201,8 +209,10 @@ const AddNewOrder = ({ onClick }) => {
                   message: `Please try again later..`,
                   color: "orange",
                 });
-                setLoading(false);
+                // setLoading(false);
                 setOrderResponse(null);
+
+                dispatch(updateSingleCustomer(null));
                 console.error("Error placing order:", error);
               } finally {
                 router.push("/admin/place-order/id=" + orderID);
@@ -214,7 +224,7 @@ const AddNewOrder = ({ onClick }) => {
             message: `Please try again later..`,
             color: "orange",
           });
-          setLoading(false);
+          // setLoading(false);
           setOrderResponse(null);
           console.log("Error SFC entry: ", error);
         }
@@ -226,7 +236,7 @@ const AddNewOrder = ({ onClick }) => {
           color: "orange",
         });
         setOrderResponse(null);
-        setLoading(false);
+        // setLoading(false);
         console.error("Transaction failed:", error);
       });
     // setLoading(false);
@@ -287,6 +297,10 @@ const AddNewOrder = ({ onClick }) => {
             customer_name: "",
             customer_address: "",
             salePrice: "",
+            received_by: "",
+            order_from: "Messenger Order",
+            ad_ID: "",
+            invoice_Note: "",
             note: "",
           }}
           onSubmit={placeOrder}

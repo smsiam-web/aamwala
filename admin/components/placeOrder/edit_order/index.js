@@ -267,6 +267,7 @@ const EditOrder = ({ onClick }) => {
               salePrice: singleOrder?.customer_details?.salePrice || "",
               note: singleOrder?.customer_details?.note || "",
               invoice_Note: singleOrder?.customer_details?.invoice_Note || "",
+              order_from: singleOrder?.customer_details?.order_from || "",
               ad_ID: singleOrder?.customer_details?.ad_ID || "",
               received_by: singleOrder?.customer_details?.received_by || "",
             }}

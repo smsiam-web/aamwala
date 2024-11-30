@@ -18,6 +18,7 @@ import { generateStick, invoiceGenerate } from "@/admin/utils/helpers";
 import { FaPrint } from "react-icons/fa";
 import { updateConfig } from "@/app/redux/slices/configSlice";
 import { useBarcode } from "next-barcode";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 const OrderTable = () => {
   const [loading, setLoading] = useState(false);
@@ -81,6 +82,10 @@ const OrderTable = () => {
     setFilterOrder(item);
     item.status === "Processing" && generateStick(item, inputRef?.current.src);
   };
+  const deleteItem = async (item) => {
+    setFilterOrder(item);
+    toggleOpen();
+  };
 
   // update status on firebase
   const updateStatus = async (i, status, id) => {
@@ -141,13 +146,13 @@ const OrderTable = () => {
   }, []);
 
   //after confirmaiton Delete porduct from firebase
-  const DeleteProduct = async (item) => {
+  const DeleteOrder = async (item) => {
+    toggleOpen();
     await db
       .collection("placeOrder")
       .doc(item.id)
       .delete()
       .then(() => {
-        toggleOpen();
         notifications.show({
           title: "Delete successfully",
           message: `Customer Name ${item.order_details.customer_name}, Order ID: #${item.id}`,
@@ -173,26 +178,28 @@ const OrderTable = () => {
         <div className="p-2 rounded-lg">
           <FormHeader
             onClick={() => toggleOpen()}
-            title={"Confirmation"}
-            sub_title="Are you sure? You want to reprint this Invoice. Please check it carefully"
+            title={"Order Delete Confirmation"}
           />
           {/* confirmaiton pop-up  */}
           {filterOrder && (
             <div className="bg-gray-50 py-10">
               <div className="flex flex-col items-center gap-3">
                 <div className="text-center">
+                  <h1 className="text-3xl font-semibold text-title">
+                    <span className="text-lg font-bold">#</span>
+                    {filterOrder?.id} ({filterOrder?.status})
+                  </h1>
                   <h1 className="text-2xl font-semibold text-title">
                     {filterOrder?.customer_details?.customer_name}
                   </h1>
-                  <h1 className="text-xs text-title">
+                  <h1 className="text-xl text-title">
                     {filterOrder?.customer_details?.phone_number}
                   </h1>
-                  <h1 className="text-sm text-title">
+                  <h1 className="text-lg text-title pb-2">
                     {filterOrder?.customer_details?.customer_address}
                   </h1>
-                  <h1 className="text-base font-semibold text-title">
-                    <span className="text-lg font-bold">#</span>
-                    {filterOrder?.id}
+                  <h1 className="text-4xl font-semibold text-title">
+                    COD: {filterOrder?.customer_details?.salePrice}/-
                   </h1>
                 </div>
                 <div className="grid grid-cols-2 gap-6 mt-4">
@@ -202,6 +209,7 @@ const OrderTable = () => {
                     className="text-md bg-red-400 hover:bg-red-500 text-white px-8"
                   />
                   <Button
+                    onClick={() => DeleteOrder(filterOrder)}
                     title="Yes, I'm Sure"
                     className="text-md bg-green-500 hover:bg-green-600 text-white px-8"
                   />
@@ -457,6 +465,20 @@ const OrderTable = () => {
                               user.staff_role === "Admin") && (
                               <td className="px-4 py-3">
                                 <div className="text-sm font-semibold flex justify-start gap-5 text-sub-title items-center">
+                                  {user.staff_role === "HR" && (
+                                    <Tooltip
+                                      label="Delete"
+                                      color="red"
+                                      withArrow
+                                    >
+                                      <span
+                                        className="cursor-pointer hover:text-blue-400"
+                                        onClick={() => deleteItem(item)}
+                                      >
+                                        <RiDeleteBinLine size={16} />
+                                      </span>
+                                    </Tooltip>
+                                  )}
                                   {user.staff_role === "HR" && (
                                     <Tooltip
                                       label="Sticker"
