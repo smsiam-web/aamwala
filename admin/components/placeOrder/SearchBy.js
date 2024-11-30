@@ -239,7 +239,7 @@ const SearchBy = ({ onClick }) => {
                 }`}
               >
                 <select
-                  className="bg-slate-800 flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer hover:bg-slate-900 text-xs text-white font-medium hover:shadow-lg transition-all duration-300"
+                  className="bg-black flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer text-xs text-white font-medium hover:shadow-lg transition-all duration-300"
                   onChange={(e) => onStatusChanged(e, filterOrder.id)}
                 >
                   <option
@@ -308,6 +308,9 @@ const SearchBy = ({ onClick }) => {
                 <h2>
                   Phone Numbaer: {filterOrder.customer_details.phone_number}
                 </h2>
+                <h2 className="text-slate-600">
+                  Note: {filterOrder?.customer_details?.note || "N/A"}
+                </h2>
               </div>
               <div className="w-4/12 text-end">
                 <h3>{ToDateAndTime(filterOrder.timestamp)}</h3>
@@ -322,12 +325,14 @@ const SearchBy = ({ onClick }) => {
                 <h3>
                   Entry by: {filterOrder?.placeBy?.user || filterOrder.placeBy}
                 </h3>
-                {filterOrder?.placeBy?.user && (
-                  <h3>Updated by: {filterOrder?.placeBy?.user}</h3>
+                {filterOrder?.updateBy && (
+                  <h3>Updated by: {filterOrder?.updateBy?.user || "N/A"}</h3>
                 )}
+
                 <h3>Weight: {filterOrder.weight}kg</h3>
               </div>
             </div>
+            <h1 className="text-2xl">Order:</h1>
             <div className="border-t my-2">
               {filterOrder &&
                 filterOrder.order.map((item, i) => (
@@ -365,11 +370,11 @@ const SearchBy = ({ onClick }) => {
                   </div>
                 ))}
             </div>
-            <div className="flex justify-between mb-10">
-              <div className="flex ">
-                <h1 className="text-lg">
-                  Note: {filterOrder?.customer_details.note}
-                </h1>
+            <div className="flex justify-between mb-10 gap-5">
+              <div className=" ">
+                <h2 className="text-slate-600 ">
+                  [Note: {filterOrder?.customer_details?.invoice_Note || "N/A"}]
+                </h2>
               </div>
               <div className="text-sm flex ">
                 <div className="text-sm sm:text-xl text-title font-semibold">
