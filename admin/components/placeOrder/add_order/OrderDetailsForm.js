@@ -93,8 +93,8 @@ const OrderDetailsForm = ({ singleOrder }) => {
       id: "Md Mehedi",
     },
     {
-      name: "Md Tipu",
-      id: "Md Tipu",
+      name: "Tipu Das",
+      id: "Tipu Das",
     },
     {
       name: "Rakibul Islam",
