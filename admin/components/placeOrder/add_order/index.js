@@ -117,6 +117,8 @@ const AddOrder = ({ onClick }) => {
 
     const date = Today();
 
+    console.log(values);
+
     const counterRef = db.collection("counters").doc("orderCounter");
 
     db.runTransaction(async (transaction) => {
@@ -234,7 +236,7 @@ const AddOrder = ({ onClick }) => {
         setLoading(false);
         console.error("Transaction failed:", error);
       });
-    // setLoading(false);
+    setLoading(false);
   };
 
   // place product handler on submit

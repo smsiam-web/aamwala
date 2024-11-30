@@ -451,7 +451,7 @@ const OrderDetailsForm = ({ singleOrder }) => {
         <span>Order From</span>
         <FormDropdown
           name="order_from"
-          placeholder="Messenger Order"
+          // placeholder="Messenger Order"
           items={OrderFrom}
         />
       </div>

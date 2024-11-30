@@ -313,11 +313,11 @@ const SearchBy = ({ onClick }) => {
                 <h3>{ToDateAndTime(filterOrder.timestamp)}</h3>
                 <h3>
                   Order type:{" "}
-                  {filterOrder.customer_details?.order_form || "null"}
+                  {filterOrder.customer_details?.order_from || "N/A"}
                 </h3>
                 <h3>
                   Received by:{" "}
-                  {filterOrder.customer_details?.received_by || "null"}
+                  {filterOrder.customer_details?.received_by || "N/A"}
                 </h3>
                 <h3>
                   Entry by: {filterOrder?.placeBy?.user || filterOrder.placeBy}
