@@ -430,8 +430,7 @@ const OrderTable = () => {
 
                             {(item.status === "Pending" &&
                               user.staff_role === "Sales Executive") ||
-                            user?.staff_role === "Sales Manager" ||
-                            user?.staff_role === "admin" ? (
+                            user?.staff_role === "Sales Manager" ? (
                               <td className="px-4 py-3 ">
                                 <Link
                                   href={`/admin/place-order/edit-order/id=${item.id}`}
@@ -446,7 +445,9 @@ const OrderTable = () => {
                             ) : (
                               <td
                                 className={`${
-                                  user.staff_role === "HR" && "hidden"
+                                  (user.staff_role === "HR" ||
+                                    user?.staff_role === "Admin") &&
+                                  "hidden"
                                 }`}
                               >
                                 <Tooltip

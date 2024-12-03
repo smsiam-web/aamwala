@@ -121,8 +121,8 @@ const OrderDetailsForm = ({ singleOrder }) => {
       id: "Rezoan Habib",
     },
     {
-      name: "Ajoy Chandro",
-      id: "Ajoy Chandro",
+      name: "Ajoy Shil",
+      id: "Ajoy Shil",
     },
 
     {

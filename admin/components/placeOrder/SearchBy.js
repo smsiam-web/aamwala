@@ -273,7 +273,7 @@ const SearchBy = ({ onClick }) => {
                 user.staff_role === "Sales Executive") ||
                 user.staff_role === "HR" ||
                 user?.staff_role === "Sales Manager" ||
-                user?.staff_role === "admin") && (
+                user?.staff_role === "Admin") && (
                 <Link
                   href={`/admin/place-order/edit-order/id=${filterOrder.id}`}
                 >
