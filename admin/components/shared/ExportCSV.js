@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
 import { useDisclosure } from "@mantine/hooks";
@@ -7,18 +7,29 @@ import Button from "./Button";
 import { TodayDate } from "../../utils/helpers";
 import { db } from "@/app/utils/firebase";
 import { notifications } from "@mantine/notifications";
+import { useSelector } from "react-redux";
+import { selectUser } from "@/app/redux/slices/authSlice";
 
 const ExportCSV = () => {
+  const [access, setAccess] = useState(true);
+  const [value, setValue] = useState();
+  const user = useSelector(selectUser);
+
   const [opened, { open, close }] = useDisclosure(false);
   const DEFAULT_FILENAME = TodayDate();
-
-  const [value, setValue] = useState();
 
   const fileType =
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
   const fileExtension = ".xlsx";
 
+  useEffect(() => {
+    user?.staff_role === "HR" || user?.staff_role === "Admin"
+      ? setAccess(false)
+      : setAccess(true);
+  }, [user]);
+
   const exportToCSV = async () => {
+    if (access) return;
     if (!!value) {
       db.collection("placeOrder")
         .orderBy("timestamp", "desc")
@@ -75,7 +86,10 @@ const ExportCSV = () => {
           }
         });
     }
+    setAccess(true);
   };
+
+  console.log(access);
 
   return (
     <>
@@ -104,9 +118,12 @@ const ExportCSV = () => {
       </Modal>
 
       <Button
+        disabled={access}
         onClick={open}
         title="Download"
-        className="bg-blue-400 hover:bg-blue-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+        className={`bg-blue-400 ${
+          !access && "hover:bg-blue-500 hover:shadow-lg "
+        } transition-all duration-300 text-white w-full h-14`}
       />
     </>
   );

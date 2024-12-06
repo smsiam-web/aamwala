@@ -33,11 +33,7 @@ const Setting = () => {
   const user = useSelector(selectUser);
   useEffect(() => {
     setLimits(
-      ((user.staff_role === "Admin" ||
-        user.staff_role === "HR" ||
-        user.staff_role === "CEO") &&
-        true) ||
-        false
+      ((user.staff_role === "HR" || user.staff_role === "CEO") && true) || false
     );
     !!config && setLastUpdate(ToDateAndTime(config[0]?.created_at));
   }, []);
@@ -85,10 +81,13 @@ const Setting = () => {
                 address: (!!config && config[0]?.values.address) || "",
                 company_contact:
                   (!!config && config[0]?.values.company_contact) || "",
-                bulk_auth: (!!config && limits && config[0]?.values.bulk_auth) || "",
-                sfc_api_key: (!!config && limits && config[0]?.values.sfc_api_key) || "",
+                bulk_auth:
+                  (!!config && limits && config[0]?.values.bulk_auth) || "",
+                sfc_api_key:
+                  (!!config && limits && config[0]?.values.sfc_api_key) || "",
                 sfc_secret_key:
-                  (!!config && limits && config[0]?.values.sfc_secret_key) || "",
+                  (!!config && limits && config[0]?.values.sfc_secret_key) ||
+                  "",
               }}
               onSubmit={placeConfig}
               validationSchema={validationSchema}

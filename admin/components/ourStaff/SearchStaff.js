@@ -16,7 +16,7 @@ const SearchStaff = ({ onClick }) => {
   const user = useSelector(selectUser);
 
   useEffect(() => {
-    setLimits(user.staff_role === "Admin" || user.staff_role === "HR" || user.staff_role === "CEO")
+    setLimits(user.staff_role === "HR" || user.staff_role === "CEO");
   }, []);
 
   const handleChange = (e) => {
@@ -33,10 +33,7 @@ const SearchStaff = ({ onClick }) => {
 
     const res = ourStaffs.map((i) => {
       if (
-        i.name
-          .toLowerCase()
-          .split(" ")
-          .includes(currentValue?.toLowerCase())
+        i.name.toLowerCase().split(" ").includes(currentValue?.toLowerCase())
       ) {
         ss.push({ ...i, isFilter: true });
       } else if (i.phone === currentValue) {
@@ -45,9 +42,7 @@ const SearchStaff = ({ onClick }) => {
         ss.push({ ...i, isFilter: true });
       } else if (i.email === currentValue) {
         ss.push({ ...i, isFilter: true });
-      } else if (
-        i.name.toLowerCase() === currentValue.toLowerCase()
-      ) {
+      } else if (i.name.toLowerCase() === currentValue.toLowerCase()) {
         ss.push({ ...i, isFilter: true });
       }
     });
@@ -55,7 +50,7 @@ const SearchStaff = ({ onClick }) => {
     ss.length ? dispatch(updateStaff(ss)) : dispatch(updateStaff(ourStaffs));
   }, [currentValue]);
 
-  // search by Role 
+  // search by Role
   const onRoleItemChanged = (e) => {
     e.preventDefault();
     let role = [];
@@ -80,7 +75,7 @@ const SearchStaff = ({ onClick }) => {
         const ourStaff = [];
         snap.docs.map((doc) => {
           ourStaff.push({
-            ...doc.data()
+            ...doc.data(),
           });
         });
         setOurStaffs(ourStaff);
@@ -123,7 +118,11 @@ const SearchStaff = ({ onClick }) => {
             </div>
 
             {/* add category btn  */}
-            <div className={`${limits ? "" : "hidden"} w-full disabled md:w-56 lg:w-56 xl:w-56`}>
+            <div
+              className={`${
+                limits ? "" : "hidden"
+              } w-full disabled md:w-56 lg:w-56 xl:w-56`}
+            >
               <Button
                 onClick={onClick}
                 title="Add Staff"

@@ -26,8 +26,8 @@ const StaffTable = ({ onClick }) => {
   const user = useSelector(selectUser);
 
   useEffect(() => {
-    setLimits(user.staff_role === "Admin" || user.staff_role === "HR" || user.staff_role === "CEO")
-  }, []);
+    setLimits(user.staff_role === "HR" || user.staff_role === "CEO");
+  }, [user.staff_role]);
 
   useEffect(() => {
     setStaff(ourStaff);
@@ -35,8 +35,8 @@ const StaffTable = ({ onClick }) => {
 
   const [opened, { open, close }] = useDisclosure(false);
 
-   // Confirmation staff from firebase
-   const ConfirmationDelete = async (item) => {
+  // Confirmation staff from firebase
+  const ConfirmationDelete = async (item) => {
     open();
     setFilterStaff(item);
   };
@@ -61,8 +61,6 @@ const StaffTable = ({ onClick }) => {
     setFilterStaff(null);
   };
 
-
-
   return (
     <>
       <Modal
@@ -80,11 +78,12 @@ const StaffTable = ({ onClick }) => {
           </span>
           <h1 className="text-2xl text-title">
             Are You Sure! Want to <span className="text-red-500">FIRE!!!</span>{" "}
-            <span className="text-primary">{filterStaff?.staff_name}'s</span> from this job...
+            <span className="text-primary">{filterStaff?.staff_name}'s</span>{" "}
+            from this job...
           </h1>
           <p className="text-base pb-6">
-            Do you really want to delete these records? Then you can't view this in
-            your list anymore if you delete!
+            Do you really want to delete these records? Then you can't view this
+            in your list anymore if you delete!
           </p>
         </div>
         <div className="bg-gray-50 w-full flex items-center justify-center gap-5 py-5">
@@ -94,7 +93,7 @@ const StaffTable = ({ onClick }) => {
             className="bg-green-500 outline-none hover:shadow-xl transition-all duration-300 font-normal text-white"
           />
           <Button
-            onClick={()=>DeleteStaff(filterStaff)}
+            onClick={() => DeleteStaff(filterStaff)}
             title="Yes, Delete it!"
             className="text-gray-50 font-normal bg-red-400 hover:bg-red-500 hover:shadow-xl transition-all duration-300"
           />
@@ -112,7 +111,9 @@ const StaffTable = ({ onClick }) => {
                 <td className="px-4 py-3 ">Contact</td>
                 <td className="px-4 py-3 ">JOINING DATE</td>
                 <td className="px-4 py-3 ">ROLE</td>
-                <td className={`${limits ? "" : "hidden"} px-4 py-3`}>ACTIONS</td>
+                <td className={`${limits ? "" : "hidden"} px-4 py-3`}>
+                  ACTIONS
+                </td>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100 ">
@@ -133,19 +134,14 @@ const StaffTable = ({ onClick }) => {
                       </Link>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm font-semibold">
-                        {item.name}
-                      </span>
+                      <span className="text-sm font-semibold">{item.name}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm ">
-                        {item.email}
-                      </span>
+                      <span className="text-sm ">{item.email}</span>
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-sm font-semibold uppercase">
                         <Link href={`tel:+88${item.phone}`}>{item.phone}</Link>
-                        
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -174,7 +170,7 @@ const StaffTable = ({ onClick }) => {
                         </Tooltip>
                         <Tooltip label="Delete" color="red" withArrow>
                           <span
-                            onClick={()=> ConfirmationDelete(item)}
+                            onClick={() => ConfirmationDelete(item)}
                             className="cursor-pointer hover:text-red-400"
                           >
                             <RiDeleteBinLine size={16} />

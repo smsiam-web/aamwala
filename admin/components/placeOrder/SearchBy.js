@@ -23,7 +23,7 @@ import { HiOutlineDocumentDownload } from "react-icons/hi";
 import { FiEdit } from "react-icons/fi";
 
 const SearchBy = ({ onClick }) => {
-  const [currentValue, setCurrentValue] = useState("RA012");
+  const [currentValue, setCurrentValue] = useState("RA013");
   const [filterOrder, setFilterOrder] = useState(null);
   const [openedd, setOpened] = useState(null);
   const [opened, { open, close }] = useDisclosure(false);
@@ -33,7 +33,7 @@ const SearchBy = ({ onClick }) => {
 
   useEffect(() => {
     if (!!opened) return;
-    setCurrentValue("RA012");
+    setCurrentValue("RA013");
     setFilterOrder(null);
   }, [opened]);
 

@@ -28,9 +28,8 @@ const SingleStaff = () => {
   const user = useSelector(selectUser);
 
   useEffect(() => {
-    setLimits(user.staff_role === "Admin" || user.staff_role === "HR" || user.staff_role === "CEO")
+    setLimits(user.staff_role === "HR" || user.staff_role === "CEO");
   }, []);
-
 
   useEffect(() => {
     staffs &&
@@ -50,13 +49,13 @@ const SingleStaff = () => {
     notifications.show({
       title: "Update details successfully",
       message: `${values.staff_name}, ID: #${id}`,
-    })
+    });
     setLoading(false);
   };
 
   // save order details on firebase database
   const updateStaffHandler = async (staff, values, staff_id) => {
-    await db.collection("users").doc(staff?.uid).set({   
+    await db.collection("users").doc(staff?.uid).set({
       authKey: staff.authKey,
       email: staff.email,
       image: staff.image,
@@ -67,7 +66,7 @@ const SingleStaff = () => {
       uid: staff.uid,
       timestamp: staff.timestamp,
     });
-    await db.collection("ourStaff").doc(staff_id).set({   
+    await db.collection("ourStaff").doc(staff_id).set({
       authKey: staff.authKey,
       email: staff.email,
       image: staff.image,
@@ -101,7 +100,11 @@ const SingleStaff = () => {
               </div>
               <div>
                 <span>Email</span>
-                <FormInput name="staff_email" placeholder="Staff Email" readOnly />
+                <FormInput
+                  name="staff_email"
+                  placeholder="Staff Email"
+                  readOnly
+                />
               </div>
               <div>
                 <span>Contact Number</span>
