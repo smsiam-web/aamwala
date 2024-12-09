@@ -97,6 +97,10 @@ const OrderDetailsForm = ({ singleOrder }) => {
       id: "Tipu Das",
     },
     {
+      name: "MD Sabbir",
+      id: "MD Sabbir",
+    },
+    {
       name: "Rakibul Islam",
       id: "Rakibul Islam",
     },
@@ -126,8 +130,8 @@ const OrderDetailsForm = ({ singleOrder }) => {
     },
 
     {
-      name: "Syed Siam Chowdhury",
-      id: "Syed Siam Chowdhury",
+      name: "Siam Chowdhury",
+      id: "Siam Chowdhury",
     },
     {
       name: "Admin",
@@ -146,6 +150,14 @@ const OrderDetailsForm = ({ singleOrder }) => {
     {
       name: "WhatsApp Order",
       id: "WhatsApp Order",
+    },
+    {
+      name: "Tele Sales",
+      id: "Tele Sales",
+    },
+    {
+      name: "Paikari Order",
+      id: "Paikari Order",
     },
   ];
   const AdID = [

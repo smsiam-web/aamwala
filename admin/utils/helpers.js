@@ -293,7 +293,7 @@ export const invoiceGenerate = (item) => {
     .setFontSize(18)
     .text(`${item?.customer_details?.salePrice.toString()}.00/-`, 161, 255.5);
 
-  doc.save(item?.id);
+  // doc.save(item?.id);
   doc.autoPrint();
   //This is a key for printing
   doc.output("dataurlnewwindow");
