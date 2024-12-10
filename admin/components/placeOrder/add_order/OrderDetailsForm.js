@@ -152,6 +152,10 @@ const OrderDetailsForm = ({ singleOrder }) => {
       id: "WhatsApp Order",
     },
     {
+      name: "Website Order",
+      id: "Website Order",
+    },
+    {
       name: "Tele Sales",
       id: "Tele Sales",
     },
@@ -161,6 +165,18 @@ const OrderDetailsForm = ({ singleOrder }) => {
     },
   ];
   const AdID = [
+    {
+      name: "W03",
+      id: "W03",
+    },
+    {
+      name: "W02",
+      id: "W02",
+    },
+    {
+      name: "W01",
+      id: "W01",
+    },
     {
       name: "8",
       id: "8",
