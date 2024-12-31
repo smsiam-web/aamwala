@@ -23,8 +23,6 @@ import { FiEdit } from "react-icons/fi";
 import { selectOrder, updateOrder } from "@/app/redux/slices/orderSlice";
 import { updateBulkOrder } from "@/app/redux/slices/bulkSlice";
 import { selectAllOrder, updateAllOrder } from "@/app/redux/slices/allOrder";
-import generateBulkPrintInvoice from "./generateBulkPrint";
-import { IoPrintOutline } from "react-icons/io5";
 
 const SearchOrder = ({ onClick }) => {
   const [currentValue, setCurrentValue] = useState("RA013");
@@ -38,6 +36,8 @@ const SearchOrder = ({ onClick }) => {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const buttonRef = (useRef < HTMLButtonElement) | (null > null);
+  const [limits, setLimits] = useState(false);
+  const [limit, setLimit] = useState(30);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -190,6 +190,7 @@ const SearchOrder = ({ onClick }) => {
 
   // Function to handle status change
   const statusChange = async (e) => {
+    if (user.staff_role !== "HR") return;
     e.preventDefault(); // Prevent default form submission behavior
 
     const statusFilter = e.target.value.toLowerCase(); // Get the selected status
@@ -267,8 +268,6 @@ const SearchOrder = ({ onClick }) => {
       });
   };
 
-  const [limits, setLimits] = useState(false);
-  const [limit, setLimit] = useState(30);
   useEffect(() => {
     setLimits(
       ((user.staff_role === "Admin" ||

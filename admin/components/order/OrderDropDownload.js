@@ -10,16 +10,17 @@ import { selectAllOrder } from "@/app/redux/slices/allOrder";
 import { notifications } from "@mantine/notifications";
 import { updateOrderStatus } from "@/admin/utils/helpers";
 import { db } from "@/app/utils/firebase";
+import { selectUser } from "@/app/redux/slices/authSlice";
 
 const OrderDropDownload = () => {
   const [orders, setOrders] = useState(useSelector(selectAllOrder));
   const [bulkOrder, setBulkOrder] = useState(useSelector(selectAllOrder));
-  const [order, setOrder] = useState(useSelector(selectOrder));
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const bulkOrders = useSelector(selectBulkOrder);
   const allOrders = useSelector(selectAllOrder);
   const dispatch = useDispatch();
+  const user = useSelector(selectUser);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -83,6 +84,7 @@ const OrderDropDownload = () => {
   };
 
   const ChangeToStatus = async () => {
+    setLoading(true);
     try {
       bulkOrder.map((item, i) => {
         const sucess = updateOrderStatus(db, item.id, item, status);
@@ -103,6 +105,7 @@ const OrderDropDownload = () => {
         autoClose: 5000,
       });
     } finally {
+      setLoading(false);
       notifications.show({
         title: "Status Updated Successfully",
         message: `Bulk Order status changed to ${status}.`,
