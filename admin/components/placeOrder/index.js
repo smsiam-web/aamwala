@@ -11,9 +11,6 @@ import {
 } from "@/app/redux/slices/updateProductId";
 import { updateSingleCustomer } from "@/app/redux/slices/singleCustomerSlice";
 
-//get hard coded program object
-// import { program } from "./programObject";
-
 const PlaceOrder = () => {
   const [opened, setOpend] = useState(false);
   const dispatch = useDispatch();

@@ -1,4 +1,7 @@
 import { jsPDF } from "jspdf";
+import "./fonts/lialinurBanglaFont";
+import "./fonts/LiAnis-normal";
+import "./fonts/SolaimanLipi-normal";
 
 // create random unique id
 export const uuid = () => {
@@ -234,6 +237,9 @@ export const invoiceGenerate = (item) => {
   });
 
   // doc.text(document.querySelector(".content > h2").innerHTML, 5, 75);
+  // doc.setFont("LiAbuUnicode");
+  // doc.setFont("LiAnis");
+  doc.setFont("SolaimanLipi");
   doc.addImage("/invoice/invoice.jpg", 0, 0, 210, 297);
   doc.text(item?.status, 91, 77);
   doc.text(item?.customer_details.customer_name, 33, 91.4);
@@ -349,4 +355,25 @@ export const generateStick = (item, barCodeImageLink) => {
   doc.autoPrint();
   //This is a key for printing
   doc.output("dataurlnewwindow");
+};
+
+// utils/orderUtils.js
+export const updateOrderStatus = async (db, orderId, orderData, newStatus) => {
+  try {
+    await db
+      .collection("placeOrder")
+      .doc(orderId)
+      .set(
+        {
+          ...orderData,
+          status: newStatus,
+          timestamp: orderData.timestamp,
+        },
+        { merge: true }
+      );
+    return true; // Indicate success
+  } catch (error) {
+    console.error("Error updating status:", error);
+    return false; // Indicate failure
+  }
 };

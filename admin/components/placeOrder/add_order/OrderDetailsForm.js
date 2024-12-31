@@ -104,18 +104,12 @@ const OrderDetailsForm = ({ singleOrder }) => {
       name: "Rakibul Islam",
       id: "Rakibul Islam",
     },
-    {
-      name: "Md Anik",
-      id: "Md Anik",
-    },
+
     {
       name: "Md Mahim",
       id: "Md Mahim",
     },
-    {
-      name: "MD Minhaz",
-      id: "MD Minhaz",
-    },
+
     {
       name: "Md. Rimon",
       id: "Md. Rimon",
@@ -162,6 +156,16 @@ const OrderDetailsForm = ({ singleOrder }) => {
     {
       name: "Paikari Order",
       id: "Paikari Order",
+    },
+  ];
+  const MarkAs = [
+    {
+      name: "Normal",
+      id: "Normal",
+    },
+    {
+      name: "Argent",
+      id: "Argent",
     },
   ];
   const AdID = [
@@ -481,6 +485,14 @@ const OrderDetailsForm = ({ singleOrder }) => {
           name="order_from"
           // placeholder="Messenger Order"
           items={OrderFrom}
+        />
+      </div>
+      <div className="mt-3">
+        <span>Mark As</span>
+        <FormDropdown
+          name="markAs"
+          // placeholder="Messenger Order"
+          items={MarkAs}
         />
       </div>
       <div>

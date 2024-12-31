@@ -14,7 +14,11 @@ import Button from "../shared/Button";
 import NotFound from "../shared/NotFound";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { selectUser } from "@/app/redux/slices/authSlice";
-import { generateStick, invoiceGenerate } from "@/admin/utils/helpers";
+import {
+  generateStick,
+  invoiceGenerate,
+  updateOrderStatus,
+} from "@/admin/utils/helpers";
 import { FaPrint } from "react-icons/fa";
 import { updateConfig } from "@/app/redux/slices/configSlice";
 import { useBarcode } from "next-barcode";
@@ -60,16 +64,14 @@ const OrderTable = () => {
     e.preventDefault();
     const status = e.target.value;
     orders.map((i) => {
-      i.id === id && updateStatus(i, status, id);
+      i.id === id && updateStatus(i, status);
     });
   };
   // Change Status from print Action and check print Status
   const statusUpdate = async (item) => {
     item.status === "Pending" && invoiceGenerate(item);
 
-    item.status === "Pending"
-      ? updateStatus(item, "Processing", item?.id)
-      : toggleOpen;
+    item.status === "Pending" ? updateStatus(item, "Processing") : toggleOpen;
     setFilterOrder(item);
     //   console.log(item);
   };
@@ -88,23 +90,22 @@ const OrderTable = () => {
   };
 
   // update status on firebase
-  const updateStatus = async (i, status, id) => {
-    await db
-      .collection("placeOrder")
-      .doc(id)
-      .set(
-        {
-          ...i,
-          timestamp: i.timestamp,
-          status: status,
-        },
-        { merge: true }
-      );
-    notifications.show({
-      title: "Status Update successfully",
-      message: `Customer Name, Order ID: #${id}`,
-      color: "blue",
-    });
+  const updateStatus = async (order, newStatus) => {
+    const success = await updateOrderStatus(db, order.id, order, newStatus);
+    if (success) {
+      notifications.show({
+        title: "Status Updated Successfully",
+        message: `Order #${order.id} status changed to ${newStatus}.`,
+        color: "blue",
+      });
+      close();
+    } else {
+      notifications.show({
+        title: "Status Update Failed",
+        message: "An error occurred while updating the status.",
+        color: "red",
+      });
+    }
   };
 
   // Get order from firebase database
@@ -239,6 +240,8 @@ const OrderTable = () => {
                   <th className="px-4 py-3 ">Delivery Type</th>
                   <th className="px-4 py-3 ">DISCOUNT</th>
                   <th className="px-4 py-3 ">Amount</th>
+                  <th className="px-4 py-3 ">WGT</th>
+
                   <th className="px-4 py-3 text-center ">status</th>
                   <th
                     className={`px-4 py-3 ${
@@ -251,6 +254,7 @@ const OrderTable = () => {
                   >
                     Actions
                   </th>
+                  <th className="px-4 py-3 text-center ">type</th>
                   <th className="px-4 py-3 ">Created at</th>
                   <th className="px-4 py-3 ">Created By</th>
                   <th className="px-4 py-3 ">invoice</th>
@@ -269,6 +273,9 @@ const OrderTable = () => {
                             className={`${item?.isFilter && "bg-sky-200"} ${
                               item.status.toLowerCase() === "delivered" &&
                               "bg-green-200"
+                            } ${
+                              item.customer_details?.markAs === "Argent" &&
+                              "bg-green-100"
                             }`}
                             key={index}
                           >
@@ -320,8 +327,8 @@ const OrderTable = () => {
                                 } text-xs uppercase font-serif font-medium px-2 py-1 rounded-full`}
                               >
                                 {item?.customer_details?.delivery_type
-                                  ? "Home Delivery"
-                                  : "Point Delivery"}
+                                  ? "HOME"
+                                  : "POINT"}
                               </span>
                             </td>
                             <td className="px-4 py-3">
@@ -335,6 +342,12 @@ const OrderTable = () => {
                                 {item.customer_details?.salePrice}tk
                               </span>
                             </td>
+                            <td className="px-4 py-3">
+                              <span className="text-sm  font-semibold">
+                                {item.weight}Kg
+                              </span>
+                            </td>
+
                             <td className="px-4 py-3">
                               <span className="font-serif">
                                 <span
@@ -405,6 +418,31 @@ const OrderTable = () => {
 
                                 <option value="Cancelled">Cancelled</option>
                               </select>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="font-serif">
+                                <span
+                                  className={`${
+                                    item.customer_details?.order_from ===
+                                      "Messenger Order" &&
+                                    "text-green-500 bg-green-100"
+                                  } ${
+                                    item.customer_details?.order_from ===
+                                      "Phone Call Order" &&
+                                    "text-gray-500 bg-gray-100"
+                                  } ${
+                                    item.customer_details?.order_from ===
+                                      "Website Order" &&
+                                    "text-indigo-500 bg-indigo-100"
+                                  } ${
+                                    item.customer_details?.order_from ===
+                                      "WhatsApp Order" &&
+                                    "text-orange-500 bg-orange-100"
+                                  }  inline-flex px-2 text-xs capitalize font-medium leading-5 rounded-full`}
+                                >
+                                  {item.customer_details?.order_from || "null"}
+                                </span>
+                              </span>
                             </td>
                             <td className="px-4 py-3">
                               <span className="text-sm font-semibold">

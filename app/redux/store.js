@@ -16,6 +16,8 @@ import singleOrderReducer from "./slices/singleOrderSlice";
 import singleCustomerReducer from "./slices/singleCustomerSlice";
 import productValueReducer from "./slices/productValueSlice";
 import weightDetailsReducer from "./slices/tempWeightDetails";
+import bulkOrderReducer from "./slices/bulkSlice";
+import allOrderReducer from "./slices/allOrder";
 
 export const store = configureStore({
   reducer: {
@@ -36,6 +38,8 @@ export const store = configureStore({
     singleCustomer: singleCustomerReducer,
     productValue: productValueReducer,
     weightDetails: weightDetailsReducer,
+    bulkOrder: bulkOrderReducer,
+    allOrder: allOrderReducer,
   },
 
   middleware: (curryGetDefaultMiddleware) =>

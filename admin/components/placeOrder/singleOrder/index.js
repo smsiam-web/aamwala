@@ -273,16 +273,28 @@ const OrderDetails = ({ onClick, item }) => {
         </div>
         <img src="/invoice/foot.png" alt="" />
       </div>
-
-      <GeneratePdf html={ref} disabled={true} onClick={() => jsxToPng(null)} />
-      <Link href={"/admin/place-order/add-new"}>
-        <Button
-          icon={<IoMdAdd size={26} />}
-          title="Add New"
-          className="bg-black font-medium hover:shadow-lg transition-all duration-300 text-white w-full h-14 text-md sm:text-lg "
-        />
-      </Link>
-      {/* <GenerateStick html={ref} /> */}
+      <div className="grid grid-cols-1 gap-3 pt-3">
+        <div>
+          <GeneratePdf
+            html={ref}
+            disabled={true}
+            onClick={() => jsxToPng(null)}
+          />
+          <Button
+            icon={<AiOutlinePrinter size={26} />}
+            // onClick={() => generate}
+            title="Print Invoice"
+            className="bg-violet-400 font-medium  hover:bg-violet-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14 text-md sm:text-lg "
+          />
+        </div>
+        <Link href={"/admin/place-order/add-new"}>
+          <Button
+            icon={<IoMdAdd size={26} />}
+            title="Add New"
+            className="bg-black font-medium hover:shadow-lg transition-all duration-300 text-white w-full h-14 text-md sm:text-lg "
+          />
+        </Link>
+      </div>
     </div>
   );
 };

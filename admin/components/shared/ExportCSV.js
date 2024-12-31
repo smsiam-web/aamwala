@@ -9,6 +9,8 @@ import { db } from "@/app/utils/firebase";
 import { notifications } from "@mantine/notifications";
 import { useSelector } from "react-redux";
 import { selectUser } from "@/app/redux/slices/authSlice";
+import { IoPrintOutline } from "react-icons/io5";
+import { IoMdCloudDownload } from "react-icons/io";
 
 const ExportCSV = () => {
   const [access, setAccess] = useState(true);
@@ -54,11 +56,6 @@ const ExportCSV = () => {
               Placed_By: doc?.data()?.placeBy?.user || doc?.data()?.placeBy,
               Note: doc?.data()?.customer_details.note,
             });
-            // Note: `${doc?.data()?.customer_details.note} ${
-            //   doc?.data()?.customer_details.delivery_type
-            //     ? "(Home Delivery)"
-            //     : "(Point Delivery)"
-            // }`,
           });
           if (!!order.length) {
             const ws = XLSX.utils.json_to_sheet(order.reverse());
@@ -89,8 +86,6 @@ const ExportCSV = () => {
     setAccess(true);
   };
 
-  console.log(access);
-
   return (
     <>
       <Modal opened={opened} onClose={close} title="Order List">
@@ -108,7 +103,8 @@ const ExportCSV = () => {
           <div className="mt-6">
             <Button
               onClick={(e) => exportToCSV()}
-              title="Download"
+              title="Download XLSX"
+              icon=<IoMdCloudDownload size={24} />
               className={`bg-blue-400  hover:shadow-lg transition-all duration-300 text-white w-full h-14 ${
                 !value && "cursor-auto"
               } ${!!value && "hover:bg-blue-500"}`}

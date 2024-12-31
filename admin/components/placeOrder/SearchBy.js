@@ -8,6 +8,7 @@ import {
   daysInMonth,
   generateStick,
   invoiceGenerate,
+  updateOrderStatus,
 } from "@/admin/utils/helpers";
 import singleOrderSlice, {
   updateSingleOrder,
@@ -21,21 +22,29 @@ import { selectUser } from "@/app/redux/slices/authSlice";
 import Link from "next/link";
 import { HiOutlineDocumentDownload } from "react-icons/hi";
 import { FiEdit } from "react-icons/fi";
+import { selectOrder, updateOrder } from "@/app/redux/slices/orderSlice";
+import { IoCall } from "react-icons/io5";
 
 const SearchBy = ({ onClick }) => {
   const [currentValue, setCurrentValue] = useState("RA013");
   const [filterOrder, setFilterOrder] = useState(null);
+  const [orders, setOrders] = useState(useSelector(selectOrder));
+  const [order, setOrder] = useState([]);
+  const [fillByStatus, setFillByStatus] = useState(null);
   const [openedd, setOpened] = useState(null);
   const [opened, { open, close }] = useDisclosure(false);
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
-  const buttonRef = (useRef < HTMLButtonElement) | (null > null);
 
   useEffect(() => {
     if (!!opened) return;
     setCurrentValue("RA013");
     setFilterOrder(null);
   }, [opened]);
+
+  useEffect(() => {
+    setOrder(orders);
+  }, [orders]);
 
   const handleChange = (e) => {
     setCurrentValue(e.currentTarget.value);
@@ -53,17 +62,10 @@ const SearchBy = ({ onClick }) => {
       height: 80,
     },
   });
-  useEffect(() => {
-    if (buttonRef.current) {
-      buttonRef.current.focus(); // Auto-focus the button when the component mounts
-    }
-  }, [filterOrder]);
 
   // Change Status from print Action and check print Status
   const stickerStatus = async (item) => {
-    item.status === "Processing"
-      ? updateStatus(item, "Shipped", item?.id)
-      : toggleOpen;
+    item.status === "Processing" ? updateStatus(item, "Shipped") : toggleOpen;
     item.status === "Processing" && generateStick(item, inputRef?.current.src);
   };
 
@@ -77,34 +79,34 @@ const SearchBy = ({ onClick }) => {
     close();
     //   console.log(item);
   };
+
   // Change Status from status Action
   const onStatusChanged = async (e, id) => {
     e.preventDefault();
-    const status = e.target.value;
+    const newStatus = e.target.value;
 
-    updateStatus(filterOrder, status, id);
+    updateStatus(filterOrder, newStatus);
   };
 
   // update status on firebase
-  const updateStatus = async (i, status, id) => {
-    await db
-      .collection("placeOrder")
-      .doc(id)
-      .set(
-        {
-          ...i,
-          timestamp: i.timestamp,
-          status: status,
-        },
-        { merge: true }
-      );
-
-    notifications.show({
-      title: "Status Update successfully",
-      message: `Customer Name ${filterOrder?.customer_details.customer_name}, Order ID: #${filterOrder?.id}`,
-      color: "blue",
-    });
-    close();
+  const updateStatus = async (order, newStatus) => {
+    const success = await updateOrderStatus(db, order.id, order, newStatus);
+    if (success) {
+      notifications.show({
+        title: "Status Updated Successfully",
+        message: `Order #${order.id} status changed to ${newStatus}.`,
+        color: "blue",
+        autoClose: 4000,
+      });
+      close();
+    } else {
+      notifications.show({
+        title: "Status Update Failed",
+        message: "An error occurred while updating the status.",
+        color: "red",
+        autoClose: 4000,
+      });
+    }
   };
 
   // // search config
@@ -155,22 +157,19 @@ const SearchBy = ({ onClick }) => {
     }
   }, [currentValue]);
 
-  // // onStatus config
-  // const onStatusChanged = (e) => {
-  //   e.preventDefault();
-  //   let status = [];
+  // onStatus config
+  const statusChange = (e) => {
+    e.preventDefault();
+    const selectedStatus = e.target.value.toLowerCase();
 
-  //   const res = orders.map((i) => {
-  //     if (
-  //       i.status.toLowerCase() === e.target.value.toLowerCase() ||
-  //       e.target.value === "Status"
-  //     ) {
-  //       status.push({ ...i });
-  //     }
-  //   });
+    const filteredOrders = orders.filter(
+      (order) =>
+        selectedStatus === "status" ||
+        order.status.toLowerCase() === selectedStatus
+    );
 
-  //   status.length ? dispatch(updateOrder(status)) : dispatch(updateOrder([]));
-  // };
+    dispatch(updateOrder(filteredOrders));
+  };
 
   // // onLimits Config
   // const onLimitChanged = (e) => {
@@ -305,9 +304,15 @@ const SearchBy = ({ onClick }) => {
                 <h2>
                   Address: {filterOrder.customer_details.customer_address}
                 </h2>
-                <h2>
-                  Phone Numbaer: {filterOrder.customer_details.phone_number}
-                </h2>
+                <div className="flex text-center items-center gap-2">
+                  <h2>Contact: {filterOrder.customer_details.phone_number}</h2>
+                  <Link
+                    className="bg-blue-400 inline-block  items-center px-2 py-1 rounded-md cursor-pointer hover:bg-blue-500 text-sm text-white font-medium hover:shadow-lg transition-all duration-300"
+                    href={`tel:+88${filterOrder.customer_details?.phone_number}`}
+                  >
+                    <IoCall size={14} />
+                  </Link>
+                </div>
                 <h2 className="text-slate-600">
                   Note: {filterOrder?.customer_details?.note || "N/A"}
                 </h2>
@@ -414,8 +419,6 @@ const SearchBy = ({ onClick }) => {
                 filterOrder.status === "Pending" && (
                   <Tooltip label="Invoice" color="blue" withArrow>
                     <button
-                      ref={buttonRef}
-                      autoFocus
                       title="Invoice"
                       className="bg-blue-400 flex items-center gap-1 px-3 py-2 rounded-md cursor-pointer hover:bg-blue-500 text-sm text-white font-medium hover:shadow-lg transition-all duration-300"
                       onClick={() => getInvoice(filterOrder)}
@@ -450,8 +453,7 @@ const SearchBy = ({ onClick }) => {
                 className="block w-full px-2 py-1 text-sm  focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200  focus:shadow-none leading-5 border h-14 bg-gray-100 border-transparent focus:bg-gray-50"
                 id="roleItem"
                 name="roleItem"
-                // defaultValue={selectedSubNav}
-                onChange={(e) => onStatusChanged(e)}
+                // onChange={(e) => statusChange(e)}
               >
                 <option>Status</option>
                 <option value="Pending">Pending</option>
