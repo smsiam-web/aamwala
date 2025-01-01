@@ -281,6 +281,9 @@ const AllOrder = () => {
                             className={`${item?.isFilter && "bg-sky-200"} ${
                               item.status.toLowerCase() === "delivered" &&
                               "bg-green-200"
+                            } ${
+                              item.customer_details?.markAs === "Argent" &&
+                              "bg-green-100"
                             }`}
                             key={index}
                           >
