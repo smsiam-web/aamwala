@@ -24,11 +24,13 @@ import { HiOutlineDocumentDownload } from "react-icons/hi";
 import { FiEdit } from "react-icons/fi";
 import { selectOrder, updateOrder } from "@/app/redux/slices/orderSlice";
 import { IoCall } from "react-icons/io5";
+import BarcodeComponent from "@/admin/utils/BarcodeImage";
 
 const SearchBy = ({ onClick }) => {
   const [currentValue, setCurrentValue] = useState("RA013");
   const [filterOrder, setFilterOrder] = useState(null);
   const [orders, setOrders] = useState(useSelector(selectOrder));
+  const [barcodeImage, setBarcodeImage] = useState("");
   const [order, setOrder] = useState([]);
   const [fillByStatus, setFillByStatus] = useState(null);
   const [openedd, setOpened] = useState(null);
@@ -38,19 +40,32 @@ const SearchBy = ({ onClick }) => {
 
   useEffect(() => {
     if (!!opened) return;
+    resetFilter();
+  }, [opened]);
+
+  const resetFilter = () => {
     setCurrentValue("RA013");
     setFilterOrder(null);
-  }, [opened]);
+    setBarcodeImage("");
+  };
 
   useEffect(() => {
     setOrder(orders);
   }, [orders]);
 
+  console.log(barcodeImage);
+
   const handleChange = (e) => {
     setCurrentValue(e.currentTarget.value);
+    // resetFilter();
   };
   const toggleOpen = () => {
     opened ? setOpened(false) : setOpened(true);
+    resetFilter();
+  };
+
+  const handleImageReady = (image) => {
+    setBarcodeImage(image);
   };
 
   const { inputRef } = useBarcode({
@@ -63,10 +78,15 @@ const SearchBy = ({ onClick }) => {
     },
   });
 
+  console.log(filterOrder);
+
   // Change Status from print Action and check print Status
   const stickerStatus = async (item) => {
-    item.status === "Processing" ? updateStatus(item, "Shipped") : toggleOpen;
-    item.status === "Processing" && generateStick(item, inputRef?.current.src);
+    item.status === "Processing"
+      ? await updateStatus(item, "Shipped")
+      : toggleOpen;
+    item.status === "Processing" && generateStick(item, barcodeImage);
+    resetFilter();
   };
 
   // Change Status from print Action and check print Status
@@ -77,6 +97,7 @@ const SearchBy = ({ onClick }) => {
       ? updateStatus(item, "Processing", item?.id)
       : toggleOpen;
     close();
+    resetFilter();
     //   console.log(item);
   };
 
@@ -84,7 +105,6 @@ const SearchBy = ({ onClick }) => {
   const onStatusChanged = async (e, id) => {
     e.preventDefault();
     const newStatus = e.target.value;
-
     updateStatus(filterOrder, newStatus);
   };
 
@@ -98,6 +118,7 @@ const SearchBy = ({ onClick }) => {
         color: "blue",
         autoClose: 4000,
       });
+      resetFilter();
       close();
     } else {
       notifications.show({
@@ -106,6 +127,7 @@ const SearchBy = ({ onClick }) => {
         color: "red",
         autoClose: 4000,
       });
+      resetFilter();
     }
   };
 
@@ -291,6 +313,12 @@ const SearchBy = ({ onClick }) => {
               <h1 className="text-center text-2xl font-semibold pb-1">
                 ID #{filterOrder.id} ({filterOrder.status})
               </h1>
+              <div className="hidden">
+                <BarcodeComponent
+                  value={filterOrder?.sfc?.consignment_id}
+                  onImageReady={handleImageReady}
+                />
+              </div>
               <h1 className="text-center text-2xl font-semibold border-b pb-3">
                 SFC #{filterOrder?.sfc?.consignment_id}
               </h1>

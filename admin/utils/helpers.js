@@ -2,6 +2,7 @@ import { jsPDF } from "jspdf";
 import "./fonts/lialinurBanglaFont";
 import "./fonts/LiAnis-normal";
 import "./fonts/SolaimanLipi-normal";
+import BarcodeComponent from "./BarcodeImage";
 
 // create random unique id
 export const uuid = () => {

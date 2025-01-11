@@ -1,9 +1,8 @@
-import React from 'react'
+import DeliveryReports from "@/admin/components/deliveryReport";
+import React from "react";
 
 const DeliveryReport = () => {
-  return (
-    <div>DeliveryReport</div>
-  )
-}
+  return <DeliveryReports />;
+};
 
-export default DeliveryReport
+export default DeliveryReport;

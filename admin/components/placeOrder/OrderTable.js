@@ -41,16 +41,6 @@ const OrderTable = () => {
 
   const ref = useRef();
 
-  const { inputRef } = useBarcode({
-    value: ID,
-    options: {
-      background: "#FFFFFF",
-      displayValue: false,
-      width: 3,
-      height: 80,
-    },
-  });
-
   useEffect(() => {
     setOrders(order);
   }, [order]);
@@ -75,6 +65,15 @@ const OrderTable = () => {
     setFilterOrder(item);
     //   console.log(item);
   };
+  const { inputRef } = useBarcode({
+    value: ID,
+    options: {
+      background: "#FFFFFF",
+      displayValue: false,
+      width: 3,
+      height: 80,
+    },
+  });
   // Change Status from print Action and check print Status
   const stickerStatus = async (item) => {
     await setID(item?.sfc?.consignment_id);
@@ -83,7 +82,9 @@ const OrderTable = () => {
       : toggleOpen;
     setFilterOrder(item);
     item.status === "Processing" && generateStick(item, inputRef?.current.src);
+    setID(null);
   };
+  console.log(ID);
   const deleteItem = async (item) => {
     setFilterOrder(item);
     toggleOpen();

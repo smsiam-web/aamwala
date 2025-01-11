@@ -5,7 +5,6 @@ import { useBarcode } from "next-barcode";
 import Image from "next/image";
 import { db } from "@/app/utils/firebase";
 import GeneratePdf from "../../../utils/GeneratePDF";
-import GenerateStick from "@/admin/utils/GenerateSticker";
 import Button from "../../shared/Button";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { IoMdAdd } from "react-icons/io";

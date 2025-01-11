@@ -26,9 +26,14 @@ const validationSchema = Yup.object().shape({
     .required()
     .label("Phone number"),
   customer_name: Yup.string().max(50).required().label("Name"),
+  received_by: Yup.string().max(60).required().label("Received By"),
+  markAs: Yup.string().max(60).required().label("Normal"),
+  order_from: Yup.string().max(60).required().default("Messenger Order"),
   customer_address: Yup.string().max(300).required().label("Address"),
+  ad_ID: Yup.string().max(5).label("Ad ID"),
   salePrice: Yup.number().required().label("Sale Price"),
-  note: Yup.string().max(500).label("Note"),
+  note: Yup.string().max(400).label("Note"),
+  invoice_Note: Yup.string().max(400).label("Invoice Note"),
 });
 
 const EditOrder = ({ onClick }) => {
@@ -269,6 +274,7 @@ const EditOrder = ({ onClick }) => {
               invoice_Note: singleOrder?.customer_details?.invoice_Note || "",
               order_from: singleOrder?.customer_details?.order_from || "",
               ad_ID: singleOrder?.customer_details?.ad_ID || "",
+              markAs: singleOrder?.customer_details?.markAs || "",
               received_by: singleOrder?.customer_details?.received_by || "",
             }}
             onSubmit={updateOrder}
