@@ -27,7 +27,7 @@ import { IoCall } from "react-icons/io5";
 import BarcodeComponent from "@/admin/utils/BarcodeImage";
 
 const SearchBy = ({ onClick }) => {
-  const [currentValue, setCurrentValue] = useState("RA013");
+  const [currentValue, setCurrentValue] = useState("RA014");
   const [filterOrder, setFilterOrder] = useState(null);
   const [orders, setOrders] = useState(useSelector(selectOrder));
   const [barcodeImage, setBarcodeImage] = useState("");
@@ -44,7 +44,7 @@ const SearchBy = ({ onClick }) => {
   }, [opened]);
 
   const resetFilter = () => {
-    setCurrentValue("RA013");
+    setCurrentValue("RA014");
     setFilterOrder(null);
     setBarcodeImage("");
   };
@@ -52,8 +52,6 @@ const SearchBy = ({ onClick }) => {
   useEffect(() => {
     setOrder(orders);
   }, [orders]);
-
-  console.log(barcodeImage);
 
   const handleChange = (e) => {
     setCurrentValue(e.currentTarget.value);
@@ -77,8 +75,6 @@ const SearchBy = ({ onClick }) => {
       height: 80,
     },
   });
-
-  console.log(filterOrder);
 
   // Change Status from print Action and check print Status
   const stickerStatus = async (item) => {

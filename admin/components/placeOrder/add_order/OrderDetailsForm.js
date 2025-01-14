@@ -217,7 +217,6 @@ const OrderDetailsForm = ({ singleOrder }) => {
   ];
 
   const obj = singleOrder?.order;
-  console.log(!!singleOrder);
 
   return (
     <div className="max-h-full">

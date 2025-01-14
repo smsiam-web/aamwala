@@ -26,7 +26,7 @@ const validationSchema = Yup.object().shape({
     .required()
     .label("Phone number"),
   customer_name: Yup.string().max(50).required().label("Name"),
-  received_by: Yup.string().max(60).required().label("Received By"),
+  received_by: Yup.string().max(60).required().label("Admin"),
   markAs: Yup.string().max(60).required().label("Normal"),
   order_from: Yup.string().max(60).required().default("Messenger Order"),
   customer_address: Yup.string().max(300).required().label("Address"),
@@ -428,7 +428,7 @@ const AddOrder = ({ onClick }) => {
             customer_name: "",
             customer_address: "",
             salePrice: "",
-            received_by: "",
+            received_by: "Admin",
             order_from: "Messenger Order",
             markAs: "Normal",
             ad_ID: "",

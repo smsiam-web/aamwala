@@ -7,21 +7,31 @@ import { updateSingleOrder } from "@/app/redux/slices/singleOrderSlice";
 import { notifications } from "@mantine/notifications";
 import firebase from "firebase";
 import "firebase/storage";
-import { usePathname } from "next/navigation";
+import { MdAddToPhotos } from "react-icons/md";
 import { useRouter } from "next/router";
 import { LoadingOverlay, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { FaPrint } from "react-icons/fa";
+import generateBulkSticker from "../generateBulkSticker";
+import { RxCross2 } from "react-icons/rx";
+import { updateOrderStatus } from "@/admin/utils/helpers";
 
 const DailyDeliveryReport = () => {
   const inputRef = useRef(null);
   const router = useRouter();
-  const [currentValue, setCurrentValue] = useState("RA013");
+  const [loadingAction, setLoadingAction] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [currentValue, setCurrentValue] = useState("RA014");
   const [dispatchId, setDispatchId] = useState(router.asPath?.split("=")[1]);
   const [opened, { open, close }] = useDisclosure(false);
   const [filterOrder, setFilterOrder] = useState(null);
   const [dispatchData, setDispatchData] = useState([]);
+  const [bulkOrder, setBulkOrder] = useState([]);
+  const [highlightedRow, setHighlightedRow] = useState(null);
+  const [status, setStatus] = useState(null);
   const [count, setCount] = useState(0);
   const dispatch = useDispatch();
+
   const handleChange = (e) => {
     setCurrentValue(e.currentTarget.value);
   };
@@ -34,44 +44,45 @@ const DailyDeliveryReport = () => {
       .catch((error) => console.error("Failed to play sound:", error));
   };
 
-  const addDispatch = () => {
+  const addDispatch = async () => {
     const value = currentValue?.toUpperCase();
-
-    // Check if the value matches the required format
     if (value?.startsWith("RA") && value.length === 9) {
+      setLoadingAction(true);
       const duplicate =
         dispatchData?.length && dispatchData.find((i) => i.id === value);
 
       if (duplicate) {
-        // Notify if the ID is already dispatched
         notifications.show({
           title: `Duplicate Entry`,
-          message: `The ID "${value}" has already been dispatched Sl No:${duplicate?.sl}.`,
-          color: "red",
+          message: `The ID "${value}" already exists as Sl No:${duplicate?.sl}.`,
+          color: "yellow",
           autoClose: 6000,
         });
-        if (inputRef.current) {
-          inputRef.current.focus(); // Focus the input after dispatch
-        }
-        togleClose();
+
+        // Highlight the duplicate entry
+        setHighlightedRow(duplicate.id); // New state to track highlighted row
+        setTimeout(() => setHighlightedRow(null), 3000); // Remove highlight after 3s
+        if (inputRef.current) inputRef.current.focus();
+        setLoadingAction(false);
+        setTimeout(() => {
+          setCurrentValue("RA014");
+        }, 3000); // Set timeout for 3 seconds
       } else {
-        // Process the ID if it's valid and not a duplicate
-        filter(value);
-        if (inputRef.current) {
-          inputRef.current.focus(); // Focus the input after dispatch
-        }
+        await filter(value);
+        setLoadingAction(false);
       }
     } else {
-      // Notify if the ID is invalid
       notifications.show({
         title: `Invalid ID`,
         message: `The entered ID "${value}" is invalid. Please ensure it starts with "RA" and is 9 characters long.`,
         color: "red",
         autoClose: 4000,
       });
-      if (inputRef.current) {
-        inputRef.current.focus(); // Focus the input after dispatch
-      }
+      if (inputRef.current) inputRef.current.focus();
+      setLoadingAction(false);
+      setTimeout(() => {
+        setCurrentValue("RA014");
+      }, 3000); // Set timeout for 3 seconds
     }
   };
 
@@ -86,7 +97,6 @@ const DailyDeliveryReport = () => {
             setFilterOrder(doc.data());
             open();
           } else {
-            console.log(dispatchData?.length);
             const singleOrder = {
               sl: dispatchData?.length + 1 || 1,
               id: doc.id,
@@ -97,12 +107,20 @@ const DailyDeliveryReport = () => {
               cod: doc.data()?.customer_details?.salePrice,
               status: doc.data()?.status,
             };
-            console.log(singleOrder);
+
             createDispatch(dispatchId, singleOrder);
             setFilterOrder(singleOrder);
-            setCurrentValue("RA013");
+            setCurrentValue("RA014");
             // open();
           }
+        } else {
+          notifications.show({
+            title: "Order not found",
+            message: `There was no order.`,
+            color: "red",
+          });
+          if (inputRef.current) inputRef.current.focus();
+          setCurrentValue("RA014");
         }
       });
   };
@@ -133,6 +151,7 @@ const DailyDeliveryReport = () => {
       // Step 4: Call filters and log success
       filters();
       playNotificationSound();
+      if (inputRef.current) inputRef.current.focus();
       notifications.show({
         title: `Order #${singleOrder?.id} Added Successfully!`,
         message: `The order details have been successfully updated.`,
@@ -169,15 +188,137 @@ const DailyDeliveryReport = () => {
     console.log(updatedDispatchData); // Log the new array after deletion
   };
 
+  const bulkSticker = async () => {
+    setLoading(true);
+    try {
+      const bulkSticker = await Promise.all(
+        dispatchData.map(async (item) => {
+          const doc = await db.collection("placeOrder").doc(item.id).get();
+          if (doc.exists) {
+            return { id: doc.id, ...doc.data() };
+          }
+          return null; // Return null if no document is found
+        })
+      );
+
+      // Filter out null values (in case some documents do not exist)
+      const filteredBulkSticker = bulkSticker.filter(Boolean);
+      setBulkOrder(filteredBulkSticker);
+      generateBulkSticker(filteredBulkSticker);
+      return filteredBulkSticker; // Optionally return the result
+    } catch (err) {
+      console.error("Error fetching bulk stickers:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeItem = async (id) => {
+    try {
+      setLoadingAction(true); // Show skeleton row
+      const updatedDispatchData = dispatchData.filter((item) => item.id !== id);
+      setDispatchData(updatedDispatchData);
+
+      await db
+        .collection("dispatch")
+        .doc(dispatchId)
+        .update({
+          dispatches: firebase.firestore.FieldValue.arrayRemove(
+            dispatchData.find((item) => item.id === id)
+          ),
+        });
+
+      notifications.show({
+        title: `Order #${id} Removed Successfully!`,
+        message:
+          "The order has been successfully removed from the dispatch list.",
+        color: "green",
+        autoClose: 4000,
+      });
+      setLoadingAction(false); // Hide skeleton row
+    } catch (error) {
+      console.error("Error removing item:", error);
+      notifications.show({
+        title: `Error Removing Order`,
+        message: `There was an error removing order #${id}. Please try again.`,
+        color: "red",
+        autoClose: 4000,
+      });
+      setLoadingAction(false); // Hide skeleton row
+    }
+  };
+
   useEffect(() => {
     filters();
   }, [dispatchId]);
 
+  const SkeletonRow = () => (
+    <tr className="animate-pulse">
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+      <td className="px-4 py-3">
+        <div className="h-4 bg-gray-200 rounded"></div>
+      </td>
+    </tr>
+  );
+  const selectStatus = async (e) => {
+    e.preventDefault();
+    const statusFilter = e.target.value;
+    setStatus(statusFilter);
+  };
+  const ChangeToStatus = async () => {
+    setLoading(true);
+    try {
+      bulkOrder.map((item, i) => {
+        const sucess = updateOrderStatus(db, item.id, item, status);
+        if (!sucess) {
+          notifications.show({
+            title: "Status Update Failed",
+            message: "An error occurred while updating the status.",
+            color: "red",
+            autoClose: 5000,
+          });
+        }
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Status Update Failed",
+        message: "An error occurred while updating the status.",
+        color: "red",
+        autoClose: 5000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
-      <Modal opened={opened} onClose={close} title="Create Dispatch By Date">
+      <Modal opened={opened} onClose={close} title="Duplicate Entry">
         <div className="flex items-center justify-center flex-col">
           <div>
+            <p>The ID "{currentValue}" already exists in the list.</p>
             <h1 className="text-center text-2xl font-semibold pb-1">
               ID #{filterOrder?.id} ({filterOrder?.status})
             </h1>
@@ -218,7 +359,46 @@ const DailyDeliveryReport = () => {
                 onClick={() => addDispatch()}
                 title="Add"
                 className="bg-blue-400 hover:bg-blue-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
-                icon=<AiOutlineAppstoreAdd size={24} />
+                icon=<MdAddToPhotos size={24} />
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="min-w-0 rounded-lg overflow-hidden bg-gray-50  shadow-xs  mb-5">
+        <div className="p-4">
+          <div className="flex gap-3 justify-end">
+            <div className="flex gap-3">
+              <select
+                className="block w-full px-2 py-1 text-sm  focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200  focus:shadow-none leading-5 border h-14 bg-gray-100 border-transparent focus:bg-gray-50"
+                id="roleItem"
+                name="roleItem"
+                // defaultValue={selectedSubNav}
+                onChange={(e) => selectStatus(e)}
+              >
+                <option>Status Change to</option>
+                <option value="Pending">Change status to Pending</option>
+                <option value="Processing">Change status to Processing</option>
+                <option value="Shipped">Change status to Shipped</option>
+                <option value="Delivered">Change status to Delivered</option>
+                <option value="Hold">Change status to Hold</option>
+                <option value="Cancelled">Change status to Cancelled</option>
+              </select>
+              <Button
+                onClick={() => ChangeToStatus()}
+                disabled={loading}
+                title="Apply"
+                className="bg-green-400 hover:bg-green-500 hover:shadow-lg transition-all duration-300 text-white w-fit h-14"
+                // icon=<IoPrintOutline size={24} />
+              />
+            </div>
+            <div className="w-full md:w-56 lg:w-56 xl:w-56">
+              <Button
+                onClick={() => bulkSticker()}
+                disabled={loading}
+                title="Bulk Print"
+                className="bg-blue-400 hover:bg-blue-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+                icon=<FaPrint size={18} />
               />
             </div>
           </div>
@@ -228,87 +408,61 @@ const DailyDeliveryReport = () => {
         <table className="w-full whitespace-nowrap table-auto">
           <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200  bg-gray-100">
             <tr>
-              <th className="px-4 py-3 ">SL</th>
-              <th className="px-4 py-3 ">invoice no</th>
-              <th className="px-4 py-3  ">SFC ID</th>
-              <th className="px-4 py-3  ">NAME</th>
-              <th className="px-4 py-3  ">Phone no.</th>
+              <th className="px-4 py-3">SL</th>
+              <th className="px-4 py-3">invoice no</th>
+              <th className="px-4 py-3">SFC ID</th>
+              <th className="px-4 py-3">NAME</th>
+              <th className="px-4 py-3">Phone no.</th>
               <th className="px-4 py-3">WGT</th>
               <th className="px-4 py-3">COD</th>
               <th className="px-4 py-3 ">status</th>
+              <th className="px-4 py-3 flex justify-center">action</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-100 ">
-            <>
-              {!!dispatchData &&
-                [...dispatchData].reverse().map((item, index) => (
-                  <tr
-                    className={`${item?.isFilter && "bg-sky-200"} ${
-                      item.status.toLowerCase() === "delivered" &&
-                      "bg-green-200"
-                    } ${
-                      item.customer_details?.markAs === "Argent" &&
-                      "bg-green-100"
-                    }`}
-                    key={index}
-                  >
-                    <td className="px-4 py-3 font-bold">
-                      <span className="text-sm">
-                        {item.sl < 9 && 0}
-                        {item.sl}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-bold">
-                      <span className="text-sm">#{item.id}</span>
-                    </td>
-                    <td className="px-4 py-3 font-bold ">
-                      <span className="text-sm">{item?.sfc}</span>
-                    </td>
-                    <td className="px-4 py-3 font-bold ">
-                      <span className="text-sm">{item?.customerName}</span>
-                    </td>
-                    <td className="px-4 py-3 font-bold ">
-                      <span className="text-sm">{item?.contact}</span>
-                    </td>
-                    <td className="px-4 py-3 font-bold">
-                      <span className="text-sm">{item?.wgt}Kg</span>
-                    </td>
-                    <td className="px-4 py-3 font-bold">
-                      <span className="text-sm">{item?.cod}tk</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="font-serif">
-                        <span
-                          className={`${
-                            item.status.toLowerCase() === "pending" &&
-                            "text-gray-700 bg-gray-200"
-                          } ${
-                            item.status.toLowerCase() === "hold" &&
-                            "text-gray-700 bg-gray-200"
-                          } ${
-                            item.status.toLowerCase() === "processing" &&
-                            "text-yellow-500 bg-yellow-100"
-                          } ${
-                            item.status.toLowerCase() === "shipped" &&
-                            "text-indigo-500 bg-indigo-100"
-                          } ${
-                            item.status.toLowerCase() === "delivered" &&
-                            "text-green-500 bg-green-100"
-                          } ${
-                            item.status.toLowerCase() === "returned" &&
-                            "bg-teal-100 text-teal-500"
-                          } ${
-                            item.status.toLowerCase() === "cancelled" &&
-                            "bg-red-100 text-red-500"
-                          } inline-flex px-2 text-xs capitalize font-medium leading-5 rounded-full`}
-                        >
-                          {item?.status}
-                        </span>
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-            </>
+          <tbody className="bg-white divide-y divide-gray-100">
+            {loadingAction && <SkeletonRow />}
+            {!!dispatchData &&
+              [...dispatchData].reverse().map((item, index) => (
+                <tr
+                  className={`${
+                    highlightedRow === item.id
+                      ? "bg-yellow-300 animate-pulse"
+                      : ""
+                  } ${item?.isFilter && "bg-sky-200"} ${
+                    item.status.toLowerCase() === "delivered" && "bg-green-200"
+                  } ${
+                    item.customer_details?.markAs === "Argent" && "bg-green-100"
+                  }`}
+                  key={index}
+                >
+                  {/* Table data rendering */}
+                  <td className="px-4 py-3 font-bold">
+                    {item.sl < 9 && 0}
+                    {item.sl}
+                  </td>
+                  <td className="px-4 py-3 font-bold">#{item.id}</td>
+                  <td className="px-4 py-3 font-bold">{item?.sfc}</td>
+                  <td className="px-4 py-3 font-bold">{item?.customerName}</td>
+                  <td className="px-4 py-3 font-bold">{item?.contact}</td>
+                  <td className="px-4 py-3 font-bold">{item?.wgt}Kg</td>
+                  <td className="px-4 py-3 font-bold">{item?.cod}tk</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`status-class-${item.status.toLowerCase()}`}
+                    >
+                      {item?.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 font-bold">
+                    <span
+                      className="text-sm hover:text-red-600 cursor-pointer flex justify-center"
+                      onClick={() => removeItem(item.id)}
+                    >
+                      <RxCross2 size={18} />
+                    </span>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

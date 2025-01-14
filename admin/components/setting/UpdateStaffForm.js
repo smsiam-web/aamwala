@@ -8,9 +8,15 @@ const UpdateStaffForm = () => {
   const [limits, setLimits] = useState(false);
   const user = useSelector(selectUser);
   useEffect(() => {
-    setLimits((user.staff_role === "Admin" || user.staff_role === "HR" || user.staff_role === "CEO") && false || true)
+    setLimits(
+      ((user.staff_role === "Admin" ||
+        user.staff_role === "HR" ||
+        user.staff_role === "CEO") &&
+        false) ||
+        true
+    );
   }, []);
-  
+
   const formInitial = {
     thumbImage: "",
   };
@@ -20,9 +26,7 @@ const UpdateStaffForm = () => {
   };
   return (
     <>
-      <label className="lable">
-        Brand Logo
-      </label>
+      <label className="lable">Brand Logo</label>
       <FileUpload
         name="thumbImage"
         dataChanger={(value) => dataChangerThumbnail(value)}
@@ -38,33 +42,48 @@ const UpdateStaffForm = () => {
       </div>
       <div>
         <span className="lable">Buisness Email</span>
-        <FormInput  name="buissnes_email" placeholder="Buisness Email" />
+        <FormInput name="buissnes_email" placeholder="Buisness Email" />
       </div>
       <div>
         <span className="lable">Contact Number</span>
-        <FormInput  name="company_contact" placeholder="Phone number" />
+        <FormInput name="company_contact" placeholder="Phone number" />
       </div>
       <div>
         <span className="lable">Address</span>
-        <FormInput
-         
-          name="address"
-          placeholder="Max 25 Char."
-        />
+        <FormInput name="address" placeholder="Max 25 Char." />
+      </div>
+      <div>
+        <span className="lable">Invoice key</span>
+        <FormInput name="placeholder_invoice" placeholder="RA013" />
       </div>
 
       <div>
         <span className="lable">Bulk Auth Key</span>
-        <FormInput   name="bulk_auth" type="password" placeholder="Auth key" items={null} />
-      </div>    
+        <FormInput
+          name="bulk_auth"
+          type="password"
+          placeholder="Auth key"
+          items={null}
+        />
+      </div>
       <div>
         <span className="lable">SFC API Key</span>
-        <FormInput   name="sfc_api_key" type="password" placeholder="SFC API key" items={null} />
-      </div>    
+        <FormInput
+          name="sfc_api_key"
+          type="password"
+          placeholder="SFC API key"
+          items={null}
+        />
+      </div>
       <div>
         <span className="lable">SFC Secret Key</span>
-        <FormInput   name="sfc_secret_key" type="password" placeholder="SFC Secret key" items={null} />
-      </div>    
+        <FormInput
+          name="sfc_secret_key"
+          type="password"
+          placeholder="SFC Secret key"
+          items={null}
+        />
+      </div>
     </>
   );
 };
