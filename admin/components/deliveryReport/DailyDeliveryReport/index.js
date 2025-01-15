@@ -3,18 +3,16 @@ import Button from "../../shared/Button";
 import { AiOutlineAppstoreAdd } from "react-icons/ai";
 import { db } from "@/app/utils/firebase";
 import { useDispatch } from "react-redux";
-import { updateSingleOrder } from "@/app/redux/slices/singleOrderSlice";
 import { notifications } from "@mantine/notifications";
 import firebase from "firebase";
 import "firebase/storage";
 import { MdAddToPhotos } from "react-icons/md";
 import { useRouter } from "next/router";
-import { LoadingOverlay, Modal } from "@mantine/core";
+import { Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { FaPrint } from "react-icons/fa";
 import generateBulkSticker from "../generateBulkSticker";
 import { RxCross2 } from "react-icons/rx";
-import { updateOrderStatus } from "@/admin/utils/helpers";
 
 const DailyDeliveryReport = () => {
   const inputRef = useRef(null);
@@ -183,11 +181,6 @@ const DailyDeliveryReport = () => {
     setCurrentValue("RA013");
   };
 
-  const deleteItem = (id) => {
-    const updatedDispatchData = dispatchData.filter((item) => item.id !== id);
-    console.log(updatedDispatchData); // Log the new array after deletion
-  };
-
   const bulkSticker = async () => {
     setLoading(true);
     try {
@@ -266,19 +259,19 @@ const DailyDeliveryReport = () => {
       <td className="px-4 py-3">
         <div className="h-4 bg-gray-200 rounded"></div>
       </td>
-      <td className="px-4 py-3">
+      <td className="hidden md:table-cell px-4 py-3">
         <div className="h-4 bg-gray-200 rounded"></div>
       </td>
-      <td className="px-4 py-3">
+      <td className="hidden md:table-cell px-4 py-3">
         <div className="h-4 bg-gray-200 rounded"></div>
       </td>
-      <td className="px-4 py-3">
+      <td className="hidden md:table-cell px-4 py-3">
         <div className="h-4 bg-gray-200 rounded"></div>
       </td>
-      <td className="px-4 py-3">
+      <td className="hidden md:table-cell px-4 py-3">
         <div className="h-4 bg-gray-200 rounded"></div>
       </td>
-      <td className="px-4 py-3">
+      <td className="hidden md:table-cell px-4 py-3">
         <div className="h-4 bg-gray-200 rounded"></div>
       </td>
     </tr>
@@ -289,32 +282,69 @@ const DailyDeliveryReport = () => {
     setStatus(statusFilter);
   };
   const ChangeToStatus = async () => {
+    if (!Array.isArray(bulkOrder) || bulkOrder.length === 0) {
+      notifications.show({
+        title: "No Orders Selected",
+        message: "Please select at least one valid order to update the status.",
+        color: "orange",
+        autoClose: 3000,
+      });
+      return;
+    }
     setLoading(true);
+
+    // Firestore batch instance
+    const batch = db.batch();
+
     try {
-      bulkOrder.map((item, i) => {
-        const sucess = updateOrderStatus(db, item.id, item, status);
-        if (!sucess) {
-          notifications.show({
-            title: "Status Update Failed",
-            message: "An error occurred while updating the status.",
-            color: "red",
-            autoClose: 5000,
-          });
-        }
+      // Iterate through bulkOrder and prepare batch updates
+      bulkOrder.forEach((item) => {
+        const orderRef = db.collection("placeOrder").doc(item.id);
+
+        batch.set(
+          orderRef,
+          {
+            ...item,
+            status,
+            timestamp: item.timestamp || new Date(), // Use item timestamp or set new one
+          },
+          { merge: true }
+        );
+      });
+
+      // Commit batch operations
+      await batch.commit();
+
+      // Show success notification
+      notifications.show({
+        title: "Status Update Successful",
+        message: "All statuses have been updated successfully.",
+        color: "green",
+        autoClose: 3000,
       });
     } catch (error) {
+      console.error("Error updating status:", error);
+
+      // Show error notification
       notifications.show({
         title: "Status Update Failed",
-        message: "An error occurred while updating the status.",
+        message:
+          "An error occurred while updating the status. Please try again.",
         color: "red",
         autoClose: 5000,
       });
     } finally {
       setLoading(false);
+      setStatus(null);
     }
   };
+
+  const printOrderIds = () => {
+    router.push(`/admin/delivery-report/dispatch-list?date=${dispatchId}`);
+  };
+
   return (
-    <>
+    <main className="h-full overflow-y-auto">
       <Modal opened={opened} onClose={close} title="Duplicate Entry">
         <div className="flex items-center justify-center flex-col">
           <div>
@@ -362,111 +392,130 @@ const DailyDeliveryReport = () => {
                 icon=<MdAddToPhotos size={24} />
               />
             </div>
+
+            <div className="w-full md:w-56 lg:w-56 xl:w-56">
+              <Button
+                onClick={() => printOrderIds()}
+                title={"Dispatch List"}
+                className="bg-orange-400 hover:bg-orange-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+                icon=<AiOutlineAppstoreAdd size={24} />
+              />
+            </div>
           </div>
         </div>
       </div>
-      <div className="min-w-0 rounded-lg overflow-hidden bg-gray-50  shadow-xs  mb-5">
+      <div className="min-w-0 hidden md:block rounded-lg overflow-hidden bg-gray-50  shadow-xs  mb-5">
         <div className="p-4">
-          <div className="flex gap-3 justify-end">
-            <div className="flex gap-3">
-              <select
-                className="block w-full px-2 py-1 text-sm  focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200  focus:shadow-none leading-5 border h-14 bg-gray-100 border-transparent focus:bg-gray-50"
-                id="roleItem"
-                name="roleItem"
-                // defaultValue={selectedSubNav}
-                onChange={(e) => selectStatus(e)}
-              >
-                <option>Status Change to</option>
-                <option value="Pending">Change status to Pending</option>
-                <option value="Processing">Change status to Processing</option>
-                <option value="Shipped">Change status to Shipped</option>
-                <option value="Delivered">Change status to Delivered</option>
-                <option value="Hold">Change status to Hold</option>
-                <option value="Cancelled">Change status to Cancelled</option>
-              </select>
-              <Button
-                onClick={() => ChangeToStatus()}
-                disabled={loading}
-                title="Apply"
-                className="bg-green-400 hover:bg-green-500 hover:shadow-lg transition-all duration-300 text-white w-fit h-14"
-                // icon=<IoPrintOutline size={24} />
-              />
-            </div>
-            <div className="w-full md:w-56 lg:w-56 xl:w-56">
-              <Button
-                onClick={() => bulkSticker()}
-                disabled={loading}
-                title="Bulk Print"
-                className="bg-blue-400 hover:bg-blue-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
-                icon=<FaPrint size={18} />
-              />
-            </div>
+          <div className="flex gap-3 flex-col md:flex-row">
+            <select
+              className="block w-full px-2 py-1 text-sm  focus:outline-none rounded-md form-select focus:border-gray-200 border-gray-200  focus:shadow-none leading-5 border h-14 bg-gray-100 border-transparent focus:bg-gray-50"
+              id="roleItem"
+              name="roleItem"
+              // defaultValue={selectedSubNav}
+              onChange={(e) => selectStatus(e)}
+            >
+              <option>Status Change to</option>
+              <option value="Pending">Change status to Pending</option>
+              <option value="Processing">Change status to Processing</option>
+              <option value="Shipped">Change status to Shipped</option>
+              <option value="Delivered">Change status to Delivered</option>
+              <option value="Hold">Change status to Hold</option>
+              <option value="Cancelled">Change status to Cancelled</option>
+            </select>
+            <Button
+              onClick={() => ChangeToStatus()}
+              disabled={loading}
+              title="Apply"
+              className="bg-green-400 hover:bg-green-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+              // icon=<IoPrintOutline size={24} />
+            />
+            <Button
+              onClick={() => bulkSticker()}
+              disabled={loading}
+              title="Bulk Print"
+              className="bg-blue-400 hover:bg-blue-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+              icon=<FaPrint size={18} />
+            />
           </div>
+          {/* <div className="w-full md:w-56 lg:w-56 xl:w-56"></div> */}
         </div>
       </div>
       <div>
-        <table className="w-full whitespace-nowrap table-auto">
-          <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200  bg-gray-100">
-            <tr>
-              <th className="px-4 py-3">SL</th>
-              <th className="px-4 py-3">invoice no</th>
-              <th className="px-4 py-3">SFC ID</th>
-              <th className="px-4 py-3">NAME</th>
-              <th className="px-4 py-3">Phone no.</th>
-              <th className="px-4 py-3">WGT</th>
-              <th className="px-4 py-3">COD</th>
-              <th className="px-4 py-3 ">status</th>
-              <th className="px-4 py-3 flex justify-center">action</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
-            {loadingAction && <SkeletonRow />}
-            {!!dispatchData &&
-              [...dispatchData].reverse().map((item, index) => (
-                <tr
-                  className={`${
-                    highlightedRow === item.id
-                      ? "bg-yellow-300 animate-pulse"
-                      : ""
-                  } ${item?.isFilter && "bg-sky-200"} ${
-                    item.status.toLowerCase() === "delivered" && "bg-green-200"
-                  } ${
-                    item.customer_details?.markAs === "Argent" && "bg-green-100"
-                  }`}
-                  key={index}
-                >
-                  {/* Table data rendering */}
-                  <td className="px-4 py-3 font-bold">
-                    {item.sl < 9 && 0}
-                    {item.sl}
-                  </td>
-                  <td className="px-4 py-3 font-bold">#{item.id}</td>
-                  <td className="px-4 py-3 font-bold">{item?.sfc}</td>
-                  <td className="px-4 py-3 font-bold">{item?.customerName}</td>
-                  <td className="px-4 py-3 font-bold">{item?.contact}</td>
-                  <td className="px-4 py-3 font-bold">{item?.wgt}Kg</td>
-                  <td className="px-4 py-3 font-bold">{item?.cod}tk</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`status-class-${item.status.toLowerCase()}`}
-                    >
-                      {item?.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-bold">
-                    <span
-                      className="text-sm hover:text-red-600 cursor-pointer flex justify-center"
-                      onClick={() => removeItem(item.id)}
-                    >
-                      <RxCross2 size={18} />
-                    </span>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+        <div className="w-full overflow-x-scroll rounded-md relative">
+          <table className="w-full whitespace-nowrap table-auto">
+            <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-100">
+              <tr>
+                <th className="px-4 py-3">SL</th>
+                <th className="px-4 py-3">Invoice No</th>
+                <th className="hidden md:table-cell px-4 py-3">SFC ID</th>
+                <th className="px-4 py-3">WGT</th>
+                {/* Other columns hidden on mobile */}
+                <th className="hidden md:table-cell px-4 py-3">Name</th>
+                <th className="hidden md:table-cell px-4 py-3">Phone No.</th>
+                <th className="hidden md:table-cell px-4 py-3">COD</th>
+                <th className="hidden md:table-cell px-4 py-3">Status</th>
+                <th className=" px-4 py-3 md:flex justify-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {loadingAction && <SkeletonRow />}
+              {!!dispatchData &&
+                [...dispatchData].reverse().map((item, index) => (
+                  <tr
+                    className={`${
+                      highlightedRow === item.id
+                        ? "bg-yellow-300 animate-pulse"
+                        : ""
+                    } ${item?.isFilter && "bg-sky-200"} ${
+                      item.status.toLowerCase() === "delivered" &&
+                      "bg-green-200"
+                    } ${
+                      item.customer_details?.markAs === "Argent" &&
+                      "bg-green-100"
+                    }`}
+                    key={index}
+                  >
+                    <td className="px-4 py-3 font-bold">
+                      {item.sl < 9 && 0}
+                      {item.sl}
+                    </td>
+                    <td className="px-4 py-3 font-bold">#{item.id}</td>
+                    <td className="hidden md:table-cell px-4 py-3 font-bold">
+                      {item?.sfc}
+                    </td>
+                    <td className="px-4 py-3 font-bold">{item?.wgt}Kg</td>
+                    {/* Hidden columns in mobile */}
+                    <td className="hidden md:table-cell px-4 py-3 font-bold">
+                      {item?.customerName}
+                    </td>
+                    <td className="hidden md:table-cell px-4 py-3 font-bold">
+                      {item?.contact}
+                    </td>
+                    <td className="hidden md:table-cell px-4 py-3 font-bold">
+                      {item?.cod}tk
+                    </td>
+                    <td className="hidden md:table-cell px-4 py-3">
+                      <span
+                        className={`status-class-${item.status.toLowerCase()}`}
+                      >
+                        {item?.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-bold">
+                      <span
+                        className="text-sm hover:text-red-600 cursor-pointer flex justify-center"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <RxCross2 size={18} />
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </>
+    </main>
   );
 };
 

@@ -297,7 +297,7 @@ const AddNewOrder = ({ onClick }) => {
             customer_name: "",
             customer_address: "",
             salePrice: "",
-            received_by: "",
+            received_by: "Admin",
             order_from: "Messenger Order",
             markAs: "Normal",
             ad_ID: "",
