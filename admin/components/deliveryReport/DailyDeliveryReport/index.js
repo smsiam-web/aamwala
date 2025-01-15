@@ -393,11 +393,11 @@ const DailyDeliveryReport = () => {
               />
             </div>
 
-            <div className="w-full md:w-56 lg:w-56 xl:w-56">
+            <div className="w-full hidden md:block md:w-56 lg:w-56 xl:w-56">
               <Button
                 onClick={() => printOrderIds()}
                 title={"Dispatch List"}
-                className="bg-orange-400 hover:bg-orange-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+                className="bg-orange-400   hover:bg-orange-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
                 icon=<AiOutlineAppstoreAdd size={24} />
               />
             </div>
