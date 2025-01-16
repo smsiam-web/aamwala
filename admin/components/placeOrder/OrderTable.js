@@ -23,6 +23,8 @@ import { FaPrint } from "react-icons/fa";
 import { updateConfig } from "@/app/redux/slices/configSlice";
 import { useBarcode } from "next-barcode";
 import { RiDeleteBinLine } from "react-icons/ri";
+import firebase from "firebase/app";
+import "firebase/database";
 
 const OrderTable = () => {
   const [loading, setLoading] = useState(false);

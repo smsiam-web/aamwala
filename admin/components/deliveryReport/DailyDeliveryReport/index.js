@@ -27,8 +27,6 @@ const DailyDeliveryReport = () => {
   const [bulkOrder, setBulkOrder] = useState([]);
   const [highlightedRow, setHighlightedRow] = useState(null);
   const [status, setStatus] = useState(null);
-  const [count, setCount] = useState(0);
-  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setCurrentValue(e.currentTarget.value);
@@ -151,7 +149,7 @@ const DailyDeliveryReport = () => {
       playNotificationSound();
       if (inputRef.current) inputRef.current.focus();
       notifications.show({
-        title: `Order #${singleOrder?.id} Added Successfully!`,
+        title: `Order #${singleOrder?.id} "${singleOrder?.wgt}Kg" Added Successfully!`,
         message: `The order details have been successfully updated.`,
         color: "blue",
         autoClose: 4000,
@@ -365,7 +363,7 @@ const DailyDeliveryReport = () => {
         </div>
       </Modal>
       <h1 className="text-4xl font-bold text-center">DISPATCH</h1>
-      <h1 className="text-9xl font-semibold text-center">
+      <h1 className="text-7xl sm:text-9xl font-semibold text-center">
         {dispatchData?.length || 0}
       </h1>
       <div className="min-w-0 rounded-lg overflow-hidden bg-gray-50  shadow-xs  mb-5">
