@@ -97,7 +97,7 @@ const DailyDeliveryReport = () => {
             open();
           } else {
             const singleOrder = {
-              sl: dispatchData?.length + 1 || 1,
+              sl: dispatchData?.dispatches?.length + 1 || 1,
               id: doc.id,
               sfc: doc.data()?.sfc.consignment_id,
               customerName: doc.data()?.customer_details?.customer_name,
