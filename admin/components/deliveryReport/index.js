@@ -91,26 +91,33 @@ const DeliveryReports = () => {
   };
 
   // get dispatch
-  const getDispatch = async () => {
-    await db
+  const getDispatch = () => {
+    const unsubscribe = db
       .collection("dispatch")
       .doc(ID)
-      .get()
-      .then((doc) => {
-        if (!!doc.data()) {
-          router.push(`/admin/delivery-report/create-dispatch?date=${ID}`);
-        } else {
-          const data = {
-            timestamp,
-            dispatchID: ID,
-            createdBy: user?.name || null,
-            dispatches: [],
-            date: today,
-          };
-          db.collection("dispatch").doc(ID).set(data);
-          router.push(`/admin/delivery-report/create-dispatch?date=${ID}`);
+      .onSnapshot(
+        (doc) => {
+          if (doc.exists) {
+            router.push(`/admin/delivery-report/create-dispatch?date=${ID}`);
+          } else {
+            const data = {
+              timestamp,
+              dispatchID: ID,
+              createdBy: user?.name || null,
+              dispatches: [],
+              date: today,
+            };
+            db.collection("dispatch").doc(ID).set(data);
+            router.push(`/admin/delivery-report/create-dispatch?date=${ID}`);
+          }
+        },
+        (error) => {
+          console.error("Error fetching real-time updates:", error);
         }
-      });
+      );
+
+    // Return the unsubscribe function to stop listening when needed
+    return unsubscribe;
   };
 
   // Get order from firebase database

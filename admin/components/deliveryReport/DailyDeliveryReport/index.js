@@ -45,7 +45,8 @@ const DailyDeliveryReport = () => {
     if (value?.startsWith("RA") && value.length === 9) {
       setLoadingAction(true);
       const duplicate =
-        dispatchData?.length && dispatchData.find((i) => i.id === value);
+        dispatchData?.dispatches?.length &&
+        dispatchData?.dispatches?.find((i) => i.id === value);
 
       if (duplicate) {
         notifications.show({
@@ -83,12 +84,14 @@ const DailyDeliveryReport = () => {
   };
 
   const filter = async (id) => {
+    // console.log("filter", id);
     await db
       .collection("placeOrder")
       .doc(id)
       .get()
       .then((doc) => {
         if (!!doc.data()) {
+          console.log(doc.data());
           if (doc.data()?.status !== "Processing") {
             setFilterOrder(doc.data());
             open();
@@ -117,6 +120,7 @@ const DailyDeliveryReport = () => {
           });
           if (inputRef.current) inputRef.current.focus();
           setCurrentValue("RA014");
+          setFilterOrder(null);
         }
       });
   };
@@ -147,6 +151,8 @@ const DailyDeliveryReport = () => {
       // Step 4: Call filters and log success
       filters();
       playNotificationSound();
+      setFilterOrder(null);
+
       if (inputRef.current) inputRef.current.focus();
       notifications.show({
         title: `Order #${singleOrder?.id} "${singleOrder?.wgt}Kg" Added Successfully!`,
@@ -162,20 +168,28 @@ const DailyDeliveryReport = () => {
   };
 
   // Get order from firebase database
-  const filters = async () => {
-    await db
+  const filters = () => {
+    const unsubscribe = db
       .collection("dispatch")
       .doc(dispatchId)
-      .get()
-      .then((doc) => {
-        if (!!doc.data()) {
-          setDispatchData(doc.data().dispatches);
+      .onSnapshot(
+        (doc) => {
+          if (doc.exists) {
+            setDispatchData(doc.data());
+          }
+        },
+        (error) => {
+          console.error("Error fetching real-time updates:", error);
         }
-      });
+      );
+
+    // Return the unsubscribe function to stop listening when needed
+    return unsubscribe;
   };
 
   const togleClose = async () => {
     close();
+    setFilterOrder(null);
     setCurrentValue("RA013");
   };
 
@@ -183,7 +197,7 @@ const DailyDeliveryReport = () => {
     setLoading(true);
     try {
       const bulkSticker = await Promise.all(
-        dispatchData.map(async (item) => {
+        dispatchData?.dispatches?.map(async (item) => {
           const doc = await db.collection("placeOrder").doc(item.id).get();
           if (doc.exists) {
             return { id: doc.id, ...doc.data() };
@@ -207,7 +221,9 @@ const DailyDeliveryReport = () => {
   const removeItem = async (id) => {
     try {
       setLoadingAction(true); // Show skeleton row
-      const updatedDispatchData = dispatchData.filter((item) => item.id !== id);
+      const updatedDispatchData = dispatchData?.dispatches?.filter(
+        (item) => item.id !== id
+      );
       setDispatchData(updatedDispatchData);
 
       await db
@@ -215,7 +231,7 @@ const DailyDeliveryReport = () => {
         .doc(dispatchId)
         .update({
           dispatches: firebase.firestore.FieldValue.arrayRemove(
-            dispatchData.find((item) => item.id === id)
+            dispatchData?.dispatches?.find((item) => item.id === id)
           ),
         });
 
@@ -364,7 +380,7 @@ const DailyDeliveryReport = () => {
       </Modal>
       <h1 className="text-4xl font-bold text-center">DISPATCH</h1>
       <h1 className="text-7xl sm:text-9xl font-semibold text-center">
-        {dispatchData?.length || 0}
+        {dispatchData?.dispatches?.length || 0}
       </h1>
       <div className="min-w-0 rounded-lg overflow-hidden bg-gray-50  shadow-xs  mb-5">
         <div className="p-4">
@@ -458,7 +474,8 @@ const DailyDeliveryReport = () => {
             <tbody className="bg-white divide-y divide-gray-100">
               {loadingAction && <SkeletonRow />}
               {!!dispatchData &&
-                [...dispatchData].reverse().map((item, index) => (
+                Array.isArray(dispatchData?.dispatches) &&
+                [...dispatchData?.dispatches]?.reverse().map((item, index) => (
                   <tr
                     className={`${
                       highlightedRow === item.id

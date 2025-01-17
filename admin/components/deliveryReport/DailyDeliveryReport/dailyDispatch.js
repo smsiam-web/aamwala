@@ -10,17 +10,25 @@ const DailyDispatch = () => {
   const [dispatchId, setDispatchId] = useState(router.asPath?.split("=")[1]);
 
   // Get order from firebase database
-  const filters = async () => {
-    await db
+  const filters = () => {
+    const unsubscribe = db
       .collection("dispatch")
       .doc(dispatchId)
-      .get()
-      .then((doc) => {
-        if (!!doc.data()) {
-          setDispatchData(doc.data());
+      .onSnapshot(
+        (doc) => {
+          if (doc.exists) {
+            setDispatchData(doc.data());
+          }
+        },
+        (error) => {
+          console.error("Error fetching real-time updates:", error);
         }
-      });
+      );
+
+    // Return the unsubscribe function to stop listening when needed
+    return unsubscribe;
   };
+
   useEffect(() => {
     filters();
   }, []);
@@ -86,7 +94,7 @@ const DailyDispatch = () => {
     });
     doc.setFontSize(22); // Smaller font size for details
     doc.text(
-      `Total Parcel: ${dispatchData?.dispatches?.length <= 9 && "0"}${
+      `Total Parcel: ${dispatchData?.dispatches?.length <= 9 ? "0" : ""}${
         dispatchData?.dispatches?.length
       }`,
       pageWidth / 2,
@@ -123,7 +131,7 @@ const DailyDispatch = () => {
 
     // Save the generated PDF
     doc.save(
-      `${dispatchId}(${dispatchData?.dispatches?.length <= 9 && "0"}${
+      `${dispatchId}(${dispatchData?.dispatches?.length <= 9 ? "0" : ""}${
         dispatchData?.dispatches?.length
       }).pdf`
     );
