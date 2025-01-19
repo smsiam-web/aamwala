@@ -33,8 +33,6 @@ const DailyDispatch = () => {
     filters();
   }, []);
 
-  console.log(dispatchData);
-
   // Validate and extract valid order IDs
   const maxOrders = dispatchData?.dispatches?.length;
   const limitedOrders = dispatchData?.dispatches?.slice(0, maxOrders); // Slice to limit the orders

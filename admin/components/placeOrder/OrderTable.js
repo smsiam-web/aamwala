@@ -275,7 +275,7 @@ const OrderTable = () => {
                           <tr
                             className={`${item?.isFilter && "bg-sky-200"} ${
                               item.status.toLowerCase() === "delivered" &&
-                              "bg-green-200"
+                              "bg-green-100"
                             } ${
                               item.customer_details?.markAs === "Argent" &&
                               "bg-green-100"
@@ -369,7 +369,7 @@ const OrderTable = () => {
                                     "text-indigo-500 bg-indigo-100"
                                   } ${
                                     item.status.toLowerCase() === "delivered" &&
-                                    "text-green-500 bg-green-100"
+                                    "text-green-500 bg-green-200"
                                   } ${
                                     item.status.toLowerCase() === "returned" &&
                                     "bg-teal-100 text-teal-500"

@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import Button from "../../shared/Button";
 import { AiOutlineAppstoreAdd } from "react-icons/ai";
-import { db } from "@/app/utils/firebase";
+import { db, timestamp } from "@/app/utils/firebase";
 import { useDispatch } from "react-redux";
 import { notifications } from "@mantine/notifications";
 import firebase from "firebase";
 import "firebase/storage";
 import { MdAddToPhotos } from "react-icons/md";
 import { useRouter } from "next/router";
-import { Modal } from "@mantine/core";
+import { Modal, NumberInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { FaPrint } from "react-icons/fa";
 import generateBulkSticker from "../generateBulkSticker";
@@ -18,6 +18,8 @@ const DailyDeliveryReport = () => {
   const inputRef = useRef(null);
   const router = useRouter();
   const [loadingAction, setLoadingAction] = useState(false);
+  const [isToggled, setIsToggled] = useState(false);
+  const [value, setValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [currentValue, setCurrentValue] = useState("RA014");
   const [dispatchId, setDispatchId] = useState(router.asPath?.split("=")[1]);
@@ -27,6 +29,8 @@ const DailyDeliveryReport = () => {
   const [bulkOrder, setBulkOrder] = useState([]);
   const [highlightedRow, setHighlightedRow] = useState(null);
   const [status, setStatus] = useState(null);
+
+  const toggle = () => setIsToggled((prev) => !prev);
 
   const handleChange = (e) => {
     setCurrentValue(e.currentTarget.value);
@@ -105,6 +109,7 @@ const DailyDeliveryReport = () => {
               wgt: doc.data()?.weight,
               cod: doc.data()?.customer_details?.salePrice,
               status: doc.data()?.status,
+              timestamp: new Date().toISOString(),
             };
 
             createDispatch(dispatchId, singleOrder);
@@ -187,17 +192,30 @@ const DailyDeliveryReport = () => {
     return unsubscribe;
   };
 
-  const togleClose = async () => {
-    close();
+  // Example usage:
+  useEffect(() => {
+    if (opened === true) return;
     setFilterOrder(null);
-    setCurrentValue("RA013");
+    setCurrentValue("RA014");
+    inputRef.current.focus();
+  }, [opened]);
+
+  const bulkPrintPermission = async () => {
+    const bulkData = dispatchData?.dispatches?.length || 0;
+    setValue(bulkData);
+    toggle();
+  };
+  const limitPrintPermission = async () => {
+    const bulkData = dispatchData?.dispatches.slice(-value);
+    bulkSticker(bulkData);
+    toggle();
   };
 
-  const bulkSticker = async () => {
+  const bulkSticker = async (bulkData) => {
     setLoading(true);
     try {
       const bulkSticker = await Promise.all(
-        dispatchData?.dispatches?.map(async (item) => {
+        bulkData.map(async (item) => {
           const doc = await db.collection("placeOrder").doc(item.id).get();
           if (doc.exists) {
             return { id: doc.id, ...doc.data() };
@@ -362,7 +380,7 @@ const DailyDeliveryReport = () => {
       <Modal opened={opened} onClose={close} title="Duplicate Entry">
         <div className="flex items-center justify-center flex-col">
           <div>
-            <p>The ID "{currentValue}" already exists in the list.</p>
+            <p>This order cannot be dispatched.</p>
             <h1 className="text-center text-2xl font-semibold pb-1">
               ID #{filterOrder?.id} ({filterOrder?.status})
             </h1>
@@ -371,11 +389,44 @@ const DailyDeliveryReport = () => {
             </h1>
           </div>
           <Button
-            onClick={() => togleClose()}
+            onClick={() => close()}
             title={"Close"}
             className="bg-orange-400 hover:bg-orange-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
             icon=<AiOutlineAppstoreAdd size={24} />
           />
+        </div>
+      </Modal>
+      <Modal opened={isToggled} title="Bulk print">
+        <div className="flex items-center justify-center flex-col">
+          <div className="pb-5 w-full">
+            {/* <p>This order cannot be dispatched.</p> */}
+            <NumberInput
+              withAsterisk
+              data-autofocus
+              // label="From last"
+              placeholder="Number of order"
+              value={value}
+              onChange={setValue}
+            />
+          </div>
+          <div className="flex w-full flex-col sm:flex-row justify-between gap-3">
+            <div className="w-full">
+              <Button
+                onClick={() => toggle()}
+                title={"Cancel"}
+                className="bg-orange-400 hover:bg-orange-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+                icon=<AiOutlineAppstoreAdd size={24} />
+              />
+            </div>
+            <div className="w-full">
+              <Button
+                onClick={() => limitPrintPermission()}
+                title={"Print"}
+                className="bg-green-400 hover:bg-green-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"
+                icon=<AiOutlineAppstoreAdd size={24} />
+              />
+            </div>
+          </div>
         </div>
       </Modal>
       <h1 className="text-4xl font-bold text-center">DISPATCH</h1>
@@ -444,7 +495,7 @@ const DailyDeliveryReport = () => {
               // icon=<IoPrintOutline size={24} />
             />
             <Button
-              onClick={() => bulkSticker()}
+              onClick={() => bulkPrintPermission()}
               disabled={loading}
               title="Bulk Print"
               className="bg-blue-400 hover:bg-blue-500 hover:shadow-lg transition-all duration-300 text-white w-full h-14"

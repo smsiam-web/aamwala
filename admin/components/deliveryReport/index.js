@@ -12,6 +12,7 @@ import { RxCross2 } from "react-icons/rx";
 import { selectUser } from "@/app/redux/slices/authSlice";
 import { formatDateToDDMMYYYY } from "@/admin/utils/helpers";
 import Link from "next/link";
+import { MdDelete, MdOutlineRemoveRedEye } from "react-icons/md";
 
 const DeliveryReports = () => {
   const [value, setValue] = useState(new Date() || null);
@@ -48,13 +49,11 @@ const DeliveryReports = () => {
   }
 
   const cg = formatDateToDDMMYYYY(value);
-  const formattedDate = value.toLocaleString("en-US", {
+  const formattedDate = new Date().toLocaleString("en-US", {
     month: "short",
     day: "2-digit",
     year: "numeric",
   });
-  const today = formattedDate.replace(/ /g, "-").replace(",", "");
-  console.log(convertDate(today));
 
   useEffect(() => {
     cg.then((date) => {
@@ -90,6 +89,8 @@ const DeliveryReports = () => {
     }
   };
 
+  console.log(ID);
+
   // get dispatch
   const getDispatch = () => {
     const unsubscribe = db
@@ -99,13 +100,14 @@ const DeliveryReports = () => {
         (doc) => {
           if (doc.exists) {
             router.push(`/admin/delivery-report/create-dispatch?date=${ID}`);
+            // setID(null);
           } else {
             const data = {
               timestamp,
               dispatchID: ID,
               createdBy: user?.name || null,
               dispatches: [],
-              date: today,
+              date: formattedDate,
             };
             db.collection("dispatch").doc(ID).set(data);
             router.push(`/admin/delivery-report/create-dispatch?date=${ID}`);
@@ -126,7 +128,7 @@ const DeliveryReports = () => {
     const unSub = db
       .collection("dispatch")
       .orderBy("timestamp", "desc")
-      .limit(30)
+      .limit(15)
       .onSnapshot((snap) => {
         const dispatch = [];
         snap.docs.map((doc) => {
@@ -144,7 +146,7 @@ const DeliveryReports = () => {
     };
   }, []);
 
-  console.log(dispatchData);
+  // console.log(dispatchData);
 
   return (
     <main className="h-full overflow-y-auto">
@@ -204,11 +206,16 @@ const DeliveryReports = () => {
                     {item?.createdBy || "null"}
                   </td>
                   <td className="px-4 py-3 font-bold">
-                    <Link
-                      href={`/admin/delivery-report/create-dispatch?date=${item?.dispatchID}`}
-                    >
-                      View
-                    </Link>
+                    <div className="flex gap-5">
+                      <Link
+                        href={`/admin/delivery-report/create-dispatch?date=${item?.dispatchID}`}
+                      >
+                        <MdOutlineRemoveRedEye />
+                      </Link>
+                      <span>
+                        <MdDelete />
+                      </span>
+                    </div>
                   </td>
                 </tr>
               ))}
