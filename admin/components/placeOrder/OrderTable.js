@@ -274,7 +274,7 @@ const OrderTable = () => {
                         index + 1 <= 15 * page && (
                           <tr
                             className={`${item?.isFilter && "bg-sky-200"} ${
-                              item.status.toLowerCase() === "delivered" &&
+                              item?.status?.toLowerCase() === "delivered" &&
                               "bg-green-100"
                             } ${
                               item.customer_details?.markAs === "Argent" &&

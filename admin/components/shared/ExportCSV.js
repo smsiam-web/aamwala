@@ -47,7 +47,8 @@ const ExportCSV = () => {
               Address: doc?.data()?.customer_details.customer_address,
               Phone: doc?.data()?.customer_details.phone_number,
               Amount: doc?.data()?.customer_details.salePrice,
-              Weight: doc?.data()?.weight,
+              Weight:
+                doc?.data()?.status === "Cancelled" ? 0 : doc?.data()?.weight,
               Created: doc?.data()?.date,
               Status: doc?.data()?.status,
               Ad_ID: doc?.data()?.customer_details.ad_ID || "null",
