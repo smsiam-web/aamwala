@@ -15,6 +15,7 @@ import { selectUser } from "@/app/redux/slices/authSlice";
 const OrderDetailsForm = ({ singleOrder }) => {
   const [mango, setMango] = useState(null);
   const [khejurGur, setKhejurGur] = useState(null);
+  const [AkherGur, setAkherGur] = useState(null);
   const [honey, setHoney] = useState(null);
   const [mosla, setMosla] = useState(null);
   const [other, setOthers] = useState(null);
@@ -40,6 +41,7 @@ const OrderDetailsForm = ({ singleOrder }) => {
       .onSnapshot((snap) => {
         const mango = [];
         const khejur = [];
+        const akhergur = [];
         const honeys = [];
         const moslagura = [];
         const others = [];
@@ -50,6 +52,10 @@ const OrderDetailsForm = ({ singleOrder }) => {
             });
           doc.data().product_details.parent_category === "খেজুরের গুড়" &&
             khejur.push({
+              ...doc.data().product_details,
+            });
+          doc.data().product_details.parent_category === "আখের গুড়" &&
+            akhergur.push({
               ...doc.data().product_details,
             });
           doc.data().product_details.parent_category === "মধু" &&
@@ -69,6 +75,7 @@ const OrderDetailsForm = ({ singleOrder }) => {
         });
         setMango(mango);
         setKhejurGur(khejur);
+        setAkherGur(akhergur);
         setHoney(honeys);
         setMosla(moslagura);
         setOthers(others);
@@ -299,8 +306,9 @@ const OrderDetailsForm = ({ singleOrder }) => {
       </div>
 
       <div>
-        <Tabs color="violet" defaultValue="khejurGur" variant="pills">
+        <Tabs color="violet" defaultValue="akherGur" variant="pills">
           <Tabs.List>
+            <Tabs.Tab value="akherGur">আখের গুড়</Tabs.Tab>
             <Tabs.Tab value="khejurGur">খেজুরের গুড়</Tabs.Tab>
             <Tabs.Tab value="honey">মধু</Tabs.Tab>
             <Tabs.Tab value="mosla">মশলা গুঁড়া</Tabs.Tab>
@@ -359,6 +367,26 @@ const OrderDetailsForm = ({ singleOrder }) => {
                         /-
                       </span>
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Tabs.Panel>
+          <Tabs.Panel value="akherGur" pt="xs">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {AkherGur?.map((i) => (
+                <div
+                  key={i.yup}
+                  className="p-2 bg-blue-500 rounded-md col-span-1"
+                >
+                  <span className="pb-10 text-lg text-white">
+                    #{i.child_category}
+                  </span>
+                  <div className="flex items-center pt-1 sm:pt-2">
+                    <div className="w-2/3">
+                      <FormInput type="number" name={i.yup} placeholder="" />
+                    </div>
+                    <span className="text-lg text-white font-bold">.kg</span>
                   </div>
                 </div>
               ))}
